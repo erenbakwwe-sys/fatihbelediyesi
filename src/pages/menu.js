@@ -5,6 +5,17 @@ import { store } from '../store.js';
 import { formatPrice, showToast } from '../utils.js';
 
 export function render() {
+  // Update state from URL if present
+  const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  const urlFacility = urlParams.get('facility');
+  const urlTable = urlParams.get('table');
+  
+  if (urlFacility && store.state.currentFacility !== urlFacility) {
+    store.setFacility(urlFacility);
+  } else if (urlTable && store.state.currentTable !== parseInt(urlTable, 10)) {
+    store.setTable(parseInt(urlTable, 10));
+  }
+
   const categories = store.categories || [];
   const menu = (store.menu || []).filter(item => item.active !== false);
   const hasTable = !!store.currentTable;
