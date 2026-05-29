@@ -77,11 +77,31 @@ export function render() {
 }
 
 export function init() {
+  const tableNo = store.state.currentTable;
+  let order = store.getPendingSplitOrder(tableNo);
+
+  // If order is not loaded yet (Firebase async), subscribe and wait for it
+  if (!order) {
+    const unsubWait = store.subscribe(() => {
+      if (!window.location.hash.includes('join-payment')) {
+        unsubWait();
+        return;
+      }
+      const newOrder = store.getPendingSplitOrder(store.state.currentTable);
+      if (newOrder) {
+        unsubWait();
+        const pageContent = document.getElementById('page-content');
+        if (pageContent) {
+          pageContent.innerHTML = render();
+          init();
+        }
+      }
+    });
+    return;
+  }
+
   const btnPay = document.getElementById('btn-join-pay');
   if (!btnPay) return;
-
-  const tableNo = store.state.currentTable;
-  const order = store.getPendingSplitOrder(tableNo);
 
   if (order) {
     // If order gets fulfilled by someone else while we look at it

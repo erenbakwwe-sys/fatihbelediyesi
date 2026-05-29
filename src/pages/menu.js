@@ -428,6 +428,15 @@ export function init() {
         return;
       }
       
+      const tableNo = store.state.currentTable;
+      if (tableNo) {
+        const pendingOrder = store.getPendingSplitOrder(tableNo);
+        if (pendingOrder) {
+          window.location.hash = '#/join-payment';
+          return;
+        }
+      }
+
       const newGridContent = (store.menu || [])
         .filter(item => item.active !== false)
         .map(item => renderMenuCard(item)).join('');
