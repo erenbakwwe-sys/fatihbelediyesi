@@ -116,7 +116,6 @@ class Store {
     if (table) {
       sessionStorage.setItem('fatih_active_table', table);
       sessionStorage.removeItem('fatih_active_facility'); // Clear facility if table is set
-      this.state.currentFacility = null;
       return parseInt(table, 10);
     }
     
@@ -137,7 +136,6 @@ class Store {
     if (facility) {
       sessionStorage.setItem('fatih_active_facility', facility);
       sessionStorage.removeItem('fatih_active_table'); // Clear table if facility is set
-      this.state.currentTable = null;
       return facility;
     }
     
