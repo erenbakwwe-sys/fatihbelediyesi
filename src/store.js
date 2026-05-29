@@ -133,6 +133,12 @@ class Store {
   // ── Database Initialization ─────────────────────────────────
   async init() {
     try {
+      let menuFallbackUsed = false;
+      let tablesFallbackUsed = false;
+      let ordersFallbackUsed = false;
+      let callsFallbackUsed = false;
+      let rewardsFallbackUsed = false;
+
       // Sync Menu
       onSnapshot(collection(db, 'menu'), async (snapshot) => {
         if (snapshot.empty) {
@@ -140,6 +146,13 @@ class Store {
           await this.seedCollection('menu', INITIAL_MENU);
         } else {
           this.state.menu = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          this.emit();
+        }
+      }, (error) => {
+        console.warn('Menu snapshot permission denied or failed. Falling back to local data.', error);
+        if (!menuFallbackUsed) {
+          menuFallbackUsed = true;
+          this.state.menu = INITIAL_MENU;
           this.emit();
         }
       });
@@ -154,6 +167,13 @@ class Store {
             .sort((a, b) => a.tableNo - b.tableNo);
           this.emit();
         }
+      }, (error) => {
+        console.warn('Tables snapshot permission denied or failed. Falling back to local data.', error);
+        if (!tablesFallbackUsed) {
+          tablesFallbackUsed = true;
+          this.state.tables = INITIAL_TABLES;
+          this.emit();
+        }
       });
 
       // Sync Orders
@@ -164,6 +184,13 @@ class Store {
           await this.seedCollection('orders', INITIAL_ORDERS);
         } else {
           this.state.orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          this.emit();
+        }
+      }, (error) => {
+        console.warn('Orders snapshot permission denied or failed. Falling back to local data.', error);
+        if (!ordersFallbackUsed) {
+          ordersFallbackUsed = true;
+          this.state.orders = INITIAL_ORDERS;
           this.emit();
         }
       });
@@ -178,6 +205,13 @@ class Store {
           this.state.calls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           this.emit();
         }
+      }, (error) => {
+        console.warn('Calls snapshot permission denied or failed. Falling back to local data.', error);
+        if (!callsFallbackUsed) {
+          callsFallbackUsed = true;
+          this.state.calls = INITIAL_CALLS;
+          this.emit();
+        }
       });
 
       // Sync Rewards
@@ -188,6 +222,13 @@ class Store {
           await this.seedCollection('rewards', INITIAL_REWARDS);
         } else {
           this.state.rewards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          this.emit();
+        }
+      }, (error) => {
+        console.warn('Rewards snapshot permission denied or failed. Falling back to local data.', error);
+        if (!rewardsFallbackUsed) {
+          rewardsFallbackUsed = true;
+          this.state.rewards = INITIAL_REWARDS;
           this.emit();
         }
       });
