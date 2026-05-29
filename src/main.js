@@ -151,7 +151,25 @@ if (toggleBtn && navLinksEl) {
 }
 
 // ── App Store Subscriptions ──────────────────────────────────
-store.subscribe((state) => {
+import { playNotificationSound } from './utils.js';
+
+store.subscribe((state, event, payload) => {
+  // Handle Global Notifications
+  if (event === 'NEW_ORDER') {
+    const currentPath = window.location.hash;
+    if (currentPath.startsWith('#/admin')) {
+      showToast(`🔔 YENİ SİPARİŞ: Masa ${payload.tableNo}`, 'info');
+      playNotificationSound();
+    }
+  } else if (event === 'NEW_CALL') {
+    const currentPath = window.location.hash;
+    if (currentPath.startsWith('#/admin')) {
+      const typeText = payload.type === 'garson' ? 'Garson' : 'Hesap';
+      showToast(`🔔 ÇAĞRI: Masa ${payload.tableNo} - ${typeText}`, 'warning');
+      playNotificationSound();
+    }
+  }
+
   const totalQty = (state.cart || []).reduce((sum, item) => sum + item.quantity, 0);
 
   // 1. Update Navigation Cart Badges (Drawer & Header)
