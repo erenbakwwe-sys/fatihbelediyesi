@@ -245,6 +245,15 @@ function renderMenuCard(item) {
 }
 
 export function init() {
+  const tableNo = store.state.currentTable;
+  if (tableNo) {
+    const pendingOrder = store.getPendingSplitOrder(tableNo);
+    if (pendingOrder) {
+      window.location.hash = '#/join-payment';
+      return;
+    }
+  }
+
   let activeCategory = 'all';
   let searchQuery = '';
 

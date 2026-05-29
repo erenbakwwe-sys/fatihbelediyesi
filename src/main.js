@@ -114,6 +114,7 @@ router.addRoute('/', () => import('./pages/landing.js'));
 router.addRoute('/menu', () => import('./pages/menu.js'));
 router.addRoute('/cart', () => import('./pages/cart.js'));
 router.addRoute('/payment', () => import('./pages/payment.js'));
+router.addRoute('/join-payment', () => import('./pages/join-payment.js'));
 router.addRoute('/scratch', () => import('./pages/scratch-card.js'));
 router.addRoute('/orders', () => import('./pages/my-orders.js'));
 

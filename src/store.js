@@ -353,8 +353,11 @@ class Store {
   // ── Firestore Write Operations ──────────────────────────────
   
   // 1. Place Order — ALWAYS succeeds (local first, Firebase in background)
-  async placeOrder(orderId, paymentMethod, note = '') {
+  async placeOrder(orderId, paymentMethod, note = '', splitCount = 1) {
     if (this.state.cart.length === 0) return null;
+
+    const isSplit = splitCount > 1;
+    const finalStatus = isSplit ? 'awaiting_payment' : 'pending';
 
     const orderData = {
       tableNo: this.state.currentTable || 1,
@@ -363,9 +366,14 @@ class Store {
       subtotal: this.getCartTotal(),
       total: this.getCartTotal(),
       paymentMethod: paymentMethod,
-      status: 'pending',
+      status: finalStatus,
       createdAt: new Date().toISOString()
     };
+
+    if (isSplit) {
+      orderData.splitCount = splitCount;
+      orderData.paidCount = 1; // The person who initiated it just paid
+    }
 
     // 1) Update local state IMMEDIATELY (optimistic)
     this.state.orders.unshift({ id: orderId, ...orderData });
@@ -378,8 +386,13 @@ class Store {
 
     // 3) Clear cart
     this.clearCart();
-    this.emit('NEW_ORDER', { id: orderId, ...orderData });
-    showToast('Siparişiniz başarıyla mutfağa iletildi!');
+    
+    if (!isSplit) {
+      this.emit('NEW_ORDER', { id: orderId, ...orderData });
+      showToast('Siparişiniz başarıyla mutfağa iletildi!');
+    } else {
+      this.emit(); // Just update state, no global notification
+    }
 
     // 4) Try Firebase in background (non-blocking)
     setDoc(doc(db, 'orders', orderId), orderData).catch(e => {
@@ -394,6 +407,36 @@ class Store {
     }
 
     return orderId;
+  }
+
+  // ── Split Payment Join Logic ──────────────────────────────
+
+  getPendingSplitOrder(tableNo) {
+    return this.state.orders.find(o => o.tableNo === parseInt(tableNo) && o.status === 'awaiting_payment');
+  }
+
+  async joinSplitPayment(orderId) {
+    const order = this.state.orders.find(o => o.id === orderId);
+    if (!order || order.status !== 'awaiting_payment') return false;
+
+    // Increment local paid count
+    order.paidCount = (order.paidCount || 1) + 1;
+    
+    let isCompleted = false;
+    if (order.paidCount >= order.splitCount) {
+      order.status = 'pending';
+      isCompleted = true;
+    }
+
+    this.emit(isCompleted ? 'NEW_ORDER' : null, isCompleted ? order : null);
+
+    // Update Firebase
+    updateDoc(doc(db, 'orders', orderId), { 
+      paidCount: order.paidCount,
+      status: order.status 
+    }).catch(() => {});
+
+    return isCompleted;
   }
 
   // 2. Waiter Call — ALWAYS succeeds
