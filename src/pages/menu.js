@@ -431,6 +431,18 @@ export function init() {
       const menuItem = (store.menu || []).find(m => m.id === itemId);
       if (!menuItem) return;
 
+      if (!store.state.currentTable && !store.state.currentFacility) {
+        showToast('Lütfen önce QR kodu okutun veya haritadan tesis seçin!', 'error');
+        
+        // Shake animation for warning banner
+        const qrWarning = document.getElementById('qr-warning');
+        if (qrWarning) {
+          qrWarning.style.animation = 'none';
+          setTimeout(() => { qrWarning.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both'; }, 10);
+        }
+        return;
+      }
+
       store.addToCart(menuItem, 1, true); // Silent add, we'll show popup
       showUpsellPopup(menuItem);
 

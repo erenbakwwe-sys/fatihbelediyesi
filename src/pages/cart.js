@@ -317,6 +317,10 @@ export function init() {
   const confirmBtn = document.getElementById('confirm-order-btn');
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
+      if (!store.state.currentTable && !store.state.currentFacility) {
+        showToast('Lütfen önce QR kodu okutun veya haritadan tesis seçin!', 'error');
+        return;
+      }
       const note = document.getElementById('order-note')?.value || '';
       sessionStorage.setItem('fatih_order_note', note);
       window.location.hash = '#/payment';

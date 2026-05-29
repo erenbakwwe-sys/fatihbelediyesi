@@ -133,6 +133,7 @@ export function render() {
         </div>
 
         <!-- 3. Cash -->
+        ${!store.state.currentFacility ? `
         <div class="payment-method-card" data-method="cash" style="
           border: 2px solid #e0e0e0; border-radius: 16px; padding: 1.2rem;
           margin-bottom: 0.8rem; cursor: pointer;
@@ -148,11 +149,12 @@ export function render() {
             </div>
             <div style="flex: 1;">
               <div style="font-size: 1.02rem; font-weight: 700; color: #1A1A2E;">Nakit (Garson Onaylı)</div>
-              <div style="font-size: 0.82rem; color: #888; margin-top: 0.2rem;">Ödemenizi garsonunuza nakit yapın</div>
+              <div style="font-size: 0.82rem; color: #888; margin-top: 0.2rem;">Masada nakit ödeme yapın</div>
             </div>
             <span class="material-icons-round payment-check" style="color: #ccc; font-size: 1.4rem;">radio_button_unchecked</span>
           </div>
         </div>
+        ` : ''}
       </div>
 
       <!-- ═══ PAYMENT DETAIL AREA ═══ -->
