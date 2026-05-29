@@ -18,7 +18,7 @@ export function render() {
 
   const categories = store.categories || [];
   const menu = (store.menu || []).filter(item => item.active !== false);
-  const hasTable = !!store.currentTable;
+  const hasTable = !!store.state.currentTable;
   const hasFacility = !!store.state.currentFacility;
   
   let facilityName = '';
