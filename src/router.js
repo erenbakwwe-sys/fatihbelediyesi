@@ -50,6 +50,12 @@ class Router {
       if (!pageHolder) {
         this.container.innerHTML = `
           <div class="admin-layout">
+            <!-- Sidebar toggle button for mobile -->
+            <button class="sidebar-toggle" id="admin-sidebar-toggle">
+              <span class="material-icons-round">menu</span>
+            </button>
+            <div class="sidebar-backdrop" id="admin-sidebar-backdrop"></div>
+
             <aside class="admin-sidebar">
               <div class="sidebar-brand">
                 <div class="sidebar-brand-logo">F</div>
@@ -161,6 +167,28 @@ class Router {
       // 4. Bind event listeners
       if (typeof this.currentPage.init === 'function') {
         this.currentPage.init();
+      }
+
+      // Bind mobile sidebar toggle inside router
+      const sidebarToggle = document.getElementById('admin-sidebar-toggle');
+      const sidebarEl = document.querySelector('.admin-sidebar');
+      const sidebarBackdrop = document.getElementById('admin-sidebar-backdrop');
+      if (sidebarToggle && sidebarEl && sidebarBackdrop) {
+        const toggleSidebar = (e) => {
+          e.stopPropagation();
+          sidebarEl.classList.toggle('open');
+          sidebarBackdrop.classList.toggle('active');
+        };
+        sidebarToggle.onclick = toggleSidebar;
+        sidebarBackdrop.onclick = toggleSidebar;
+        
+        // Auto-close on nav item clicks
+        sidebarEl.querySelectorAll('.sidebar-nav-item').forEach(link => {
+          link.addEventListener('click', () => {
+            sidebarEl.classList.remove('open');
+            sidebarBackdrop.classList.remove('active');
+          });
+        });
       }
 
       // 5. Update active link in navbar / sidebar

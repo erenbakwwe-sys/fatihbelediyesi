@@ -33,16 +33,16 @@ class Store {
   constructor() {
     this.listeners = [];
     
-    // Core state
+    // Core state - IMMEDIATE OPTIMISTIC LOCAL LOADING for instant 0ms rendering
     this.state = {
-      menu: [],
-      tables: [],
-      orders: [],
-      calls: [],
-      rewards: [],
+      menu: INITIAL_MENU,
+      tables: INITIAL_TABLES,
+      orders: INITIAL_ORDERS,
+      calls: INITIAL_CALLS,
+      rewards: INITIAL_REWARDS,
       cart: this.loadCartFromStorage(),
       currentTable: this.parseTableFromUrl(),
-      loading: true
+      loading: false
     };
 
     // Initialize Store & Firestore sync
@@ -55,6 +55,8 @@ class Store {
   get orders() { return this.state.orders; }
   get calls() { return this.state.calls; }
   get rewards() { return this.state.rewards; }
+  get cart() { return this.state.cart; }
+  get currentTable() { return this.state.currentTable; }
   get categories() {
     return [
       { id: 'starters', name: 'Başlangıçlar', icon: 'soup_kitchen' },
