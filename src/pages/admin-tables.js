@@ -8,7 +8,11 @@ export function render() {
     <div class="admin-page admin-tables">
       <div class="page-header">
         <h1><span class="material-icons-round">table_restaurant</span> Masalar ve QR Kodlar</h1>
-        <div class="page-header-actions">
+        <div class="page-header-actions" style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" id="btn-print-all-qr">
+            <span class="material-icons-round">print</span>
+            Toplu QR Yazdır
+          </button>
           <button class="btn btn-primary" id="btn-add-table-modal">
             <span class="material-icons-round">add</span>
             Yeni Masa Ekle
@@ -323,4 +327,83 @@ export function init() {
       link.click();
     });
   });
+
+  // Print All QRs Handler
+  const btnPrintAll = document.getElementById('btn-print-all-qr');
+  if (btnPrintAll) {
+    btnPrintAll.addEventListener('click', () => {
+      const activeTables = store.state.tables.filter(t => t.active !== false);
+      if (activeTables.length === 0) {
+        showToast('Yazdırılacak aktif masa bulunamadı.', 'warning');
+        return;
+      }
+
+      // Create printable HTML
+      const origin = window.location.origin || 'http://localhost:5173';
+      const printWindow = window.open('', '_blank');
+      
+      let html = `
+        <html>
+        <head>
+          <title>Fatih Akıllı Sofra - QR Kodlar</title>
+          <style>
+            body { font-family: 'Inter', sans-serif; padding: 20px; background: #fff; }
+            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+            .qr-card { 
+              border: 2px dashed #ccc; 
+              padding: 20px; 
+              text-align: center; 
+              page-break-inside: avoid;
+              border-radius: 16px;
+            }
+            .qr-card img { width: 200px; height: 200px; margin-bottom: 15px; }
+            .qr-title { font-size: 24px; font-weight: bold; color: #C8102E; margin: 0 0 10px 0; }
+            .qr-subtitle { font-size: 14px; color: #666; margin: 0; }
+            .brand { text-align: center; margin-bottom: 40px; }
+            .brand img { height: 60px; }
+            @media print {
+              .grid { gap: 20px; }
+              .qr-card { border: 1px solid #000; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="brand">
+            <h1 style="color: #C8102E;">Fatih Belediyesi Akıllı Sofra</h1>
+            <p>Masa QR Kod Listesi (${activeTables.length} Masa)</p>
+          </div>
+          <div class="grid">
+      `;
+
+      activeTables.forEach(table => {
+        const appUrl = `${origin}${window.location.pathname}#/menu?table=${table.tableNo}`;
+        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(appUrl)}`;
+        html += `
+          <div class="qr-card">
+            <h2 class="qr-title">Masa ${table.tableNo}</h2>
+            <img src="${qrImageUrl}" alt="QR" />
+            <p class="qr-subtitle">Sipariş vermek için okutun</p>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+          <script>
+            // Wait for images to load before printing
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+                // window.close(); // Optional: close after print
+              }, 1000);
+            };
+          </script>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.write(html);
+      printWindow.document.close();
+    });
+  }
 }
