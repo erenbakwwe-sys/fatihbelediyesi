@@ -239,8 +239,11 @@ const handleGarsonCagir = async (e) => {
   if (navLinksEl) navLinksEl.classList.remove('open');
   if (toggleBtn) toggleBtn.classList.remove('active');
 
-  if (!store.currentTable) {
-    store.setTable(1);
+  if (!store.state.currentTable) {
+    import('./utils.js').then(({ showToast }) => {
+      showToast('Lütfen önce masanızdaki QR kodu okutun.', 'error');
+    });
+    return;
   }
   
   const overlay = document.createElement('div');
