@@ -202,7 +202,7 @@ export default {
         throw new Error('qrcode-generator library not loaded correctly');
       }
 
-      const qr = qrFn(0, 'M');
+      const qr = qrFn(4, 'M');
       // Create actual routing link pointing to the correct local/deployed URL dynamically
       const origin = window.location.origin || 'http://localhost:5173';
       const appUrl = `${origin}${window.location.pathname}#/menu?table=${tableNo}`;

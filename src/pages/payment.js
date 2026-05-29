@@ -2,7 +2,7 @@
 // NFC, Credit Card, Cash payment methods with animations
 
 import { store } from '../store.js';
-import { formatPrice, showToast } from '../utils.js';
+import { formatPrice, showToast, generateId } from '../utils.js';
 
 export function render() {
   const cart = store.cart || [];
@@ -380,6 +380,26 @@ export function init() {
   bindPaymentActions();
 
   function bindPaymentActions() {
+    async function processPayment(method, btnEl) {
+      const note = sessionStorage.getItem('fatih_order_note') || '';
+      const orderId = generateId('ORD');
+      
+      if (store.placeOrder) {
+        try {
+          await store.placeOrder(orderId, method, note);
+          sessionStorage.removeItem('fatih_order_note');
+          showSuccess();
+        } catch (e) {
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.innerHTML = 'Hata! Tekrar Dene';
+          }
+        }
+      } else {
+        showSuccess();
+      }
+    }
+
     // NFC Payment
     const nfcBtn = document.getElementById('nfc-pay-btn');
     if (nfcBtn) {
@@ -391,8 +411,8 @@ export function init() {
         `;
 
         setTimeout(() => {
-          showSuccess();
-        }, 3000);
+          processPayment('nfc', nfcBtn);
+        }, 2000);
       });
     }
 
@@ -407,8 +427,8 @@ export function init() {
         `;
 
         setTimeout(() => {
-          showSuccess();
-        }, 2500);
+          processPayment('card', cardBtn);
+        }, 2000);
       });
     }
 
@@ -436,7 +456,9 @@ export function init() {
     const cashBtn = document.getElementById('cash-confirm-btn');
     if (cashBtn) {
       cashBtn.addEventListener('click', () => {
-        showSuccess();
+        cashBtn.disabled = true;
+        cashBtn.innerHTML = `İşleniyor...`;
+        processPayment('cash', cashBtn);
       });
     }
   }

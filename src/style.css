@@ -2820,6 +2820,10 @@ p {
     padding: 0 var(--space-4);
   }
 
+  .hide-on-mobile {
+    display: none !important;
+  }
+
   h1 { font-size: var(--font-size-2xl); }
   h2 { font-size: var(--font-size-xl); }
   h3 { font-size: var(--font-size-lg); }

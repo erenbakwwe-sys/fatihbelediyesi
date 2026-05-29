@@ -322,8 +322,25 @@ export function init() {
         btn.classList.remove('added');
         btn.innerHTML = originalHTML;
       }, 1200);
+    });
+  }
 
-      showToast(`${menuItem.name} sepete eklendi`, 'success');
+  if (store.subscribe) {
+    const unsubscribe = store.subscribe(() => {
+      const page = document.querySelector('.menu-page');
+      if (!page) {
+        if (typeof unsubscribe === 'function') unsubscribe();
+        return;
+      }
+      
+      const newGridContent = (store.menu || [])
+        .filter(item => item.active !== false)
+        .map(item => renderMenuCard(item)).join('');
+        
+      if (grid && grid.innerHTML !== newGridContent) {
+        grid.innerHTML = newGridContent;
+        filterCards();
+      }
     });
   }
 }

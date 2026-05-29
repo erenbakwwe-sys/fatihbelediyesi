@@ -238,13 +238,13 @@ function renderEmptyCart() {
       <p class="text-muted" style="font-size: 0.92rem; margin-bottom: 1.5rem; max-width: 300px;">
         Menümüzden lezzetli yemekler ekleyerek siparişinize başlayın
       </p>
-      <button class="btn btn-primary" onclick="window.location.hash='#/menu'" style="
+      <a href="#/menu" class="btn btn-primary" style="
         padding: 0.8rem 2rem; border-radius: 50px; font-size: 0.95rem;
-        display: flex; align-items: center; gap: 0.5rem;
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;
       ">
         <span class="material-icons-round">restaurant_menu</span>
         Menüye Git
-      </button>
+      </a>
     </div>
   `;
 }
@@ -318,10 +318,7 @@ export function init() {
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
       const note = document.getElementById('order-note')?.value || '';
-      if (store.placeOrder) {
-        store.placeOrder(note);
-      }
-      showToast('Siparişiniz alındı!', 'success');
+      sessionStorage.setItem('fatih_order_note', note);
       window.location.hash = '#/payment';
     });
   }
