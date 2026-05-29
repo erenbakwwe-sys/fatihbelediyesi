@@ -393,8 +393,8 @@ class Store {
     this.emit('NEW_CALL', { id: localId, ...callData });
 
     // 2) Try Firebase in background
-    withTimeout(addDoc(collection(db, 'calls'), callData)).catch(e => {
-      console.warn('Firebase call save failed (offline):', e.message);
+    addDoc(collection(db, 'calls'), callData).catch(e => {
+      console.warn('Firebase call save failed (offline or permission denied):', e.message);
     });
 
     if (table && table.status !== 'dining') {
@@ -584,8 +584,12 @@ class Store {
     this.emit();
     showToast('Kupon kodunuz kaydedildi!', 'success');
 
-    // Firebase background
-    withTimeout(setDoc(doc(db, 'rewards', rewardId), fullReward)).catch(() => {});
+    // Firebase background (fire and forget, log any permission errors)
+    setDoc(doc(db, 'rewards', rewardId), fullReward).catch((e) => {
+      console.error('FIREBASE REWARD KAYIT HATASI:', e.message);
+      // Even if Firebase fails, we keep it locally in the UI so the customer sees success.
+      // But we alert the console for debugging if Admin panel doesn't see it.
+    });
   }
 
   async markRewardUsed(rewardId) {

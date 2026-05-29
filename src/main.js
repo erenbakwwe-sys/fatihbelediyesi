@@ -207,6 +207,13 @@ store.subscribe((state, event, payload) => {
 
 const handleGarsonCagir = async (e) => {
   e.stopPropagation();
+  
+  // Mobil menüyü kapat (çekmeceyi kapat ki modal düzgün görünsün)
+  const navLinksEl = document.getElementById('navbar-links');
+  const toggleBtn = document.getElementById('navbar-toggle-btn');
+  if (navLinksEl) navLinksEl.classList.remove('open');
+  if (toggleBtn) toggleBtn.classList.remove('active');
+
   if (!store.currentTable) {
     store.setTable(1);
   }
