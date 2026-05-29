@@ -10,38 +10,40 @@ import { PRIZE_POOL } from '../data.js';
 export default {
   render() {
     return `
-      <section class="scratch-card-section container reveal">
+      <section class="scratch-card-section container reveal revealed">
         <div class="scratch-card-wrapper card">
           <div class="card-header text-center">
             <h2 class="scratch-title">Mutfaktan Sürpriz Hediye!</h2>
-            <p class="scratch-subtitle">Fatih Belediyesi öncülüğünde, Akıllı Sofra siparişinize özel Kazı-Kazan hakkı kazandınız.</p>
+            <p class="scratch-subtitle">Fatih Belediyesi öncülüğünde, siparişinize özel sürpriz hediyenizi açın!</p>
           </div>
           
           <div class="card-body">
-            <!-- Confetti Overlay Container -->
             <div id="scratch-confetti-container" class="confetti-container"></div>
             
-            <div class="scratch-game-area">
-              <!-- Scratch Canvas Card -->
-              <div class="scratch-canvas-container" id="canvas-container">
-                <!-- Underneath content (what is revealed) -->
-                <div class="scratch-underneath" id="scratch-result">
-                  <div class="result-placeholder">Yükleniyor...</div>
+            <div class="scratch-game-area" id="gift-area">
+              <div id="gift-box-container" style="
+                cursor: pointer; padding: 2rem 0; text-align: center;
+                transition: all 0.3s;
+              ">
+                <div id="gift-box" style="
+                  font-size: 6rem; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.15);
+                  animation: float 3s ease-in-out infinite; display: inline-block;
+                ">🎁</div>
+                <div class="scratch-instruction text-center" style="margin-top: 1.5rem;">
+                  <span class="material-icons-round" style="vertical-align: middle;">touch_app</span>
+                  <span>Hediyenizi görmek için pakete dokunun!</span>
                 </div>
-                <canvas id="scratch-canvas" width="360" height="220"></canvas>
               </div>
-              
-              <div class="scratch-instruction text-center" id="scratch-instruction">
-                <span class="material-icons-round">draw</span>
-                <span>Kartın üzerini parmağınız veya mouse ile kazıyarak hediyenizi bulun!</span>
+
+              <div id="gift-result-container" style="display: none; padding: 2rem 0; text-align: center; animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <!-- Result gets injected here -->
               </div>
             </div>
 
             <!-- Lead Capture Form (Initially Hidden) -->
-            <div id="scratch-lead-form-wrap" class="scratch-lead-form-container" style="display: none;">
+            <div id="scratch-lead-form-wrap" class="scratch-lead-form-container" style="display: none; margin-top: 1rem;">
               <div class="lead-header text-center">
-                <span class="material-icons-round reward-icon text-primary">emoji_events</span>
-                <h3 id="reward-celebration-title">Tebrikler!</h3>
+                <h3 id="reward-celebration-title" style="color: #C8102E; font-weight: 800; margin-bottom: 0.5rem;">Tebrikler!</h3>
                 <p>Hediyenizi size özel kupon koduyla almak için bilgilerinizi eksiksiz doldurun.</p>
               </div>
               
@@ -70,34 +72,32 @@ export default {
             </div>
 
             <!-- Failure Action Area (Initially Hidden) -->
-            <div id="scratch-failure-wrap" class="scratch-failure-container text-center" style="display: none;">
-              <span class="material-icons-round sad-icon text-muted">sentiment_dissatisfied</span>
-              <h3>Şansınız Yaver Gitmedi!</h3>
-              <p>Masa ${store.state.currentTable || 1} için bu seferlik bir hediye çıkmadı. Afiyet olsun!</p>
-              <a href="#/menu" class="btn btn-primary" style="margin-top: 20px;">
+            <div id="scratch-failure-wrap" class="scratch-failure-container text-center" style="display: none; margin-top: 1rem;">
+              <p style="margin-bottom: 1rem; color: #666;">Masa ${store.state.currentTable || 1} için bu seferlik bir hediye çıkmadı. Afiyet olsun!</p>
+              <a href="#/menu" class="btn btn-primary">
                 <span class="material-icons-round">restaurant_menu</span>
                 <span>Menüye Dön</span>
               </a>
             </div>
 
             <!-- Saved Reward Receipt Area (Initially Hidden) -->
-            <div id="scratch-saved-wrap" class="scratch-saved-container text-center" style="display: none;">
-              <span class="material-icons-round success-icon text-success">check_circle</span>
-              <h3>Kuponunuz Kaydedildi!</h3>
-              <p style="margin-bottom: 20px;">Bu kupon kodu Fatih Belediyesi Akıllı Sofra sisteminde adınıza tanımlanmıştır. Servis görevlisine göstererek hediyenizi talep edebilirsiniz.</p>
+            <div id="scratch-saved-wrap" class="scratch-saved-container text-center" style="display: none; margin-top: 1rem;">
+              <span class="material-icons-round success-icon text-success" style="font-size: 4rem;">check_circle</span>
+              <h3 style="margin-top: 0.5rem;">Kuponunuz Kaydedildi!</h3>
+              <p style="margin-bottom: 20px; color: #666; font-size: 0.9rem;">Kupon kodunuz adınıza tanımlanmıştır. Görevliye göstererek talep edebilirsiniz.</p>
               
-              <div class="promo-coupon-card">
-                <div class="coupon-title" id="receipt-prize-name">Hediye Adı</div>
-                <div class="coupon-code-wrap">
-                  <span class="coupon-label">KUPON KODU</span>
-                  <div class="coupon-code" id="receipt-coupon-code">APO-XXXXXX</div>
+              <div class="promo-coupon-card" style="background: #f8f9fa; border: 2px dashed #C8102E; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                <div class="coupon-title" id="receipt-prize-name" style="font-size: 1.2rem; font-weight: 800; color: #1A1A2E; margin-bottom: 0.5rem;">Hediye Adı</div>
+                <div class="coupon-code-wrap" style="margin: 1rem 0;">
+                  <span class="coupon-label" style="font-size: 0.75rem; color: #888;">KUPON KODU</span>
+                  <div class="coupon-code" id="receipt-coupon-code" style="font-size: 1.5rem; font-weight: 900; color: #C8102E; letter-spacing: 2px;">APO-XXXXXX</div>
                 </div>
-                <div class="coupon-details">
+                <div class="coupon-details" style="font-size: 0.85rem; color: #666;">
                   <span id="receipt-customer-name">İsim Soyad</span> • <span id="receipt-customer-phone">Telefon</span>
                 </div>
               </div>
 
-              <a href="#/" class="btn btn-primary" style="margin-top: 30px;">
+              <a href="#/" class="btn btn-primary">
                 <span class="material-icons-round">home</span>
                 <span>Ana Sayfaya Dön</span>
               </a>
@@ -110,98 +110,52 @@ export default {
 
   init() {
     this.confettiActive = false;
-    this.scratched = false;
+    this.opened = false;
     this.prize = null;
     this.couponId = generateId('APO');
     
     // 1. Determine Win/Loss (40% win rate)
     const isWinner = Math.random() < 0.4;
-    
     if (isWinner) {
-      // Pick random prize
       const randomIdx = Math.floor(Math.random() * PRIZE_POOL.length);
       this.prize = PRIZE_POOL[randomIdx];
     }
 
-    // 2. Render underneath result content
-    const resultElement = document.getElementById('scratch-result');
-    if (resultElement) {
-      if (this.prize) {
-        resultElement.innerHTML = `
-          <div class="scratch-win-reveal">
-            <span class="material-icons-round gold-star bounce">emoji_events</span>
-            <div class="reveal-prize-title">Tebrikler!</div>
-            <div class="reveal-prize-name">${this.prize}</div>
-          </div>
-        `;
-      } else {
-        resultElement.innerHTML = `
-          <div class="scratch-lose-reveal">
-            <span class="material-icons-round silver-star">sentiment_neutral</span>
-            <div class="reveal-prize-title">Teşekkürler!</div>
-            <div class="reveal-prize-name">Yine Deneyin</div>
-          </div>
-        `;
-      }
+    // 2. Gift Box click handler
+    const giftBoxContainer = document.getElementById('gift-box-container');
+    if (giftBoxContainer) {
+      giftBoxContainer.addEventListener('click', () => {
+        if (this.opened) return;
+        this.opened = true;
+        
+        const giftBox = document.getElementById('gift-box');
+        
+        // Shake animation
+        giftBox.style.animation = 'none';
+        giftBox.style.transformOrigin = 'center bottom';
+        giftBox.animate([
+          { transform: 'rotate(0deg)' },
+          { transform: 'rotate(-10deg)' },
+          { transform: 'rotate(10deg)' },
+          { transform: 'rotate(-10deg)' },
+          { transform: 'rotate(10deg)' },
+          { transform: 'rotate(0deg)' }
+        ], { duration: 500, iterations: 2 });
+        
+        // Reveal after shake
+        setTimeout(() => {
+          giftBoxContainer.style.opacity = '0';
+          giftBoxContainer.style.transform = 'scale(0.8)';
+          
+          setTimeout(() => {
+            giftBoxContainer.style.display = 'none';
+            this.revealPrize();
+          }, 300);
+        }, 1000);
+      });
     }
 
-    // 3. Initialize Canvas
-    const canvas = document.getElementById('scratch-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    // Draw silver/gray overlay coating
-    this.drawCoating(canvas, ctx);
-
-    // Scratch event bindings
-    let isDrawing = false;
-
-    const getMousePos = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      };
-    };
-
-    const scratch = (e) => {
-      if (!isDrawing || this.scratched) return;
-      e.preventDefault();
-
-      const pos = getMousePos(e);
-      
-      // Use 'destination-out' to clear the canvas on path
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Check scratch percent periodically
-      this.checkScratchPercent(canvas, ctx);
-    };
-
-    const startScratch = (e) => {
-      isDrawing = true;
-      scratch(e);
-    };
-
-    const stopScratch = () => {
-      isDrawing = false;
-    };
-
-    // Mouse events
-    canvas.addEventListener('mousedown', startScratch);
-    canvas.addEventListener('mousemove', scratch);
-    window.addEventListener('mouseup', stopScratch);
-
-    // Touch events
-    canvas.addEventListener('touchstart', startScratch);
-    canvas.addEventListener('touchmove', scratch);
-    window.addEventListener('touchend', stopScratch);
-
-    // 4. Form Submit handler
+    // 3. Form Submit handler
     const form = document.getElementById('scratch-claim-form');
     if (form) {
       form.addEventListener('submit', async (e) => {
@@ -225,15 +179,13 @@ export default {
         try {
           await store.addReward(this.couponId, rewardData);
           
-          // Hide form, show receipt
           document.getElementById('scratch-lead-form-wrap').style.display = 'none';
-          
           document.getElementById('receipt-prize-name').textContent = this.prize;
           document.getElementById('receipt-coupon-code').textContent = this.couponId;
           document.getElementById('receipt-customer-name').textContent = name;
           document.getElementById('receipt-customer-phone').textContent = phone;
-          
           document.getElementById('scratch-saved-wrap').style.display = 'block';
+          
           this.stopConfetti();
         } catch (error) {
           console.error(error);
@@ -242,88 +194,28 @@ export default {
     }
   },
 
-  drawCoating(canvas, ctx) {
-    ctx.globalCompositeOperation = 'source-over';
+  revealPrize() {
+    const resultContainer = document.getElementById('gift-result-container');
+    if (!resultContainer) return;
     
-    // Premium Metallic Gradient coating
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    grad.addColorStop(0, '#B0B0B0');
-    grad.addColorStop(0.3, '#E0E0E0');
-    grad.addColorStop(0.5, '#A0A0A0');
-    grad.addColorStop(0.7, '#D8D8D8');
-    grad.addColorStop(1, '#8C8C8C');
+    resultContainer.style.display = 'block';
     
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Subtle patterns (Fatih Belediyesi theme touch)
-    ctx.fillStyle = 'rgba(200, 16, 46, 0.08)'; // #C8102E red transparent
-    for (let i = 0; i < canvas.width; i += 20) {
-      for (let j = 0; j < canvas.height; j += 20) {
-        ctx.fillRect(i, j, 4, 4);
-      }
-    }
-
-    // Top text coating
-    ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
-    ctx.fillStyle = '#1A1A2E'; // secondary dark color
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('FATİH BELEDİYESİ', canvas.width / 2, canvas.height / 2 - 20);
-    
-    ctx.font = 'bold 16px "Inter", sans-serif';
-    ctx.fillStyle = '#C8102E'; // #C8102E primary red
-    ctx.fillText('KAZI KAZAN SOFRA', canvas.width / 2, canvas.height / 2 + 10);
-    
-    ctx.font = '500 11px "Inter", sans-serif';
-    ctx.fillStyle = '#666';
-    ctx.fillText('HEDİYENİZİ BULMAK İÇİN KAZIYIN', canvas.width / 2, canvas.height / 2 + 35);
-  },
-
-  checkScratchPercent(canvas, ctx) {
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const pixels = imgData.data;
-    let transparentCount = 0;
-
-    // Check transparency in alpha channel
-    for (let i = 3; i < pixels.length; i += 4) {
-      if (pixels[i] === 0) {
-        transparentCount++;
-      }
-    }
-
-    const percent = (transparentCount / (pixels.length / 4)) * 100;
-    
-    // Automatically trigger reveal once scrolled/scratched past 50%
-    if (percent > 50 && !this.scratched) {
-      this.scratched = true;
-      this.revealCard(canvas);
+    if (this.prize) {
+      resultContainer.innerHTML = `
+        <span class="material-icons-round" style="font-size: 5rem; color: #f59e0b; margin-bottom: 1rem;">emoji_events</span>
+        <div style="font-size: 1.5rem; font-weight: 900; color: #C8102E;">${this.prize}</div>
+      `;
+      this.triggerConfetti();
+      document.getElementById('scratch-lead-form-wrap').style.display = 'block';
+    } else {
+      resultContainer.innerHTML = `
+        <span class="material-icons-round" style="font-size: 5rem; color: #9ca3af; margin-bottom: 1rem;">sentiment_dissatisfied</span>
+        <div style="font-size: 1.5rem; font-weight: 800; color: #1A1A2E;">Yine Bekleriz</div>
+      `;
+      document.getElementById('scratch-failure-wrap').style.display = 'block';
     }
   },
 
-  revealCard(canvas) {
-    // Elegant fade out canvas animation
-    canvas.style.transition = 'opacity 0.6s ease';
-    canvas.style.opacity = '0';
-    
-    setTimeout(() => {
-      canvas.style.display = 'none';
-      const instruction = document.getElementById('scratch-instruction');
-      if (instruction) instruction.style.display = 'none';
-
-      // 1. Check Win or Loss
-      if (this.prize) {
-        // Trigger Winner Celebration Confetti
-        this.triggerConfetti();
-        document.getElementById('scratch-lead-form-wrap').style.display = 'block';
-        document.getElementById('reward-celebration-title').innerHTML = `Tebrikler! ${this.prize} Kazandınız!`;
-      } else {
-        document.getElementById('scratch-failure-wrap').style.display = 'block';
-      }
-    }, 600);
-  },
-
-  // Confetti Animation Engine (CSS-only dynamic bubbles)
   triggerConfetti() {
     const container = document.getElementById('scratch-confetti-container');
     if (!container) return;
@@ -346,9 +238,7 @@ export default {
 
   stopConfetti() {
     const container = document.getElementById('scratch-confetti-container');
-    if (container) {
-      container.innerHTML = '';
-    }
+    if (container) container.innerHTML = '';
     this.confettiActive = false;
   },
 

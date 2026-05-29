@@ -471,8 +471,7 @@ class Store {
     });
   }
 
-  // 4. Admin Table Operations
-  async addTable(tableNo, nfcTagId) {
+  async addTable(tableNo, nfcTagId, silent = false) {
     const newTable = {
       id: `t${tableNo}`,
       tableNo: parseInt(tableNo, 10),
@@ -484,14 +483,52 @@ class Store {
     // Local first
     this.state.tables.push(newTable);
     this.state.tables.sort((a, b) => a.tableNo - b.tableNo);
-    this.emit();
-    showToast(`Masa ${tableNo} başarıyla eklendi.`, 'success');
+    
+    if (!silent) {
+      this.emit();
+      showToast(`Masa ${tableNo} başarıyla eklendi.`, 'success');
+    }
 
     // Firebase background
     const { id, ...data } = newTable;
     withTimeout(setDoc(doc(db, 'tables', id), data)).catch(e => {
       console.warn('Firebase addTable failed:', e.message);
     });
+  }
+
+  async addTablesBulk(count) {
+    const batch = writeBatch(db);
+    let added = 0;
+    
+    for (let i = 1; i <= count; i++) {
+      const exists = this.state.tables.some(t => t.tableNo === i);
+      if (!exists) {
+        const newTable = {
+          id: `t${i}`,
+          tableNo: i,
+          nfcTagId: `NFC-FATIH-T${String(i).padStart(2, '0')}`,
+          status: 'empty',
+          active: true
+        };
+        this.state.tables.push(newTable);
+        
+        const { id, ...data } = newTable;
+        batch.set(doc(db, 'tables', id), data);
+        added++;
+      }
+    }
+    
+    if (added > 0) {
+      this.state.tables.sort((a, b) => a.tableNo - b.tableNo);
+      this.emit();
+      
+      // Execute batch silently in background
+      withTimeout(batch.commit()).catch(e => {
+        console.warn('Firebase bulk add failed:', e.message);
+      });
+    }
+    
+    return added;
   }
 
   async toggleTableActive(tableId, active) {

@@ -54,7 +54,7 @@ export function render() {
       <div class="modal-overlay" id="add-table-modal" style="display:none;">
         <div class="modal modal-sm">
           <div class="modal-header">
-            <h2><span class="material-icons-round">add_circle</span> Yeni Masa Ekle</h2>
+            <h2><span class="material-icons-round">add_circle</span> Toplu Masa Oluştur</h2>
             <button class="btn btn-sm btn-outline" id="btn-close-modal">
               <span class="material-icons-round">close</span>
             </button>
@@ -62,19 +62,16 @@ export function render() {
           <div class="modal-body">
             <form id="add-table-form">
               <div class="form-group">
-                <label class="form-label">Masa Numarası *</label>
-                <input type="number" class="form-input" id="new-table-no" min="1" required placeholder="Örn: 14">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">NFC Etiket ID (Opsiyonel)</label>
-                <input type="text" class="form-input" id="new-table-nfc" placeholder="Boş bırakırsanız otomatik atanır">
+                <label class="form-label">Toplam Masa Sayısı *</label>
+                <input type="number" class="form-input" id="new-table-count" min="1" required placeholder="Örn: 100">
+                <small class="text-muted" style="display:block;margin-top:0.5rem;">Belirttiğiniz sayıya kadar eksik olan tüm masalar ve QR kodları otomatik oluşturulacaktır.</small>
               </div>
             </form>
           </div>
           <div class="modal-footer">
             <button class="btn btn-outline" id="btn-cancel-modal">İptal</button>
             <button type="submit" form="add-table-form" class="btn btn-primary">
-              <span class="material-icons-round">save</span> Ekle
+              <span class="material-icons-round">auto_awesome</span> Oluştur
             </button>
           </div>
         </div>
@@ -264,20 +261,34 @@ export function init() {
   if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const tableNo = document.getElementById('new-table-no').value;
-      const nfcTagId = document.getElementById('new-table-nfc').value;
-
-      const exists = store.tables.some(t => t.tableNo === parseInt(tableNo, 10));
-      if (exists) {
-        showToast(`Masa ${tableNo} zaten tanımlı!`, 'error');
+      const countInput = document.getElementById('new-table-count').value;
+      const totalCount = parseInt(countInput, 10);
+      
+      if (!totalCount || totalCount <= 0) {
+        showToast('Geçerli bir masa sayısı girin.', 'error');
         return;
       }
 
-      store.addTable(tableNo, nfcTagId);
+      const btn = form.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="material-icons-round" style="animation: spin 1s linear infinite;">autorenew</span> Oluşturuluyor...`;
+      btn.disabled = true;
+
+      const added = await store.addTablesBulk(totalCount);
+
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+
       closeModal();
-      setTimeout(reRender, 50);
+      
+      if (added > 0) {
+        showToast(`Toplam ${added} yeni masa başarıyla oluşturuldu!`, 'success');
+        setTimeout(reRender, 100);
+      } else {
+        showToast(`Tüm masalar zaten tanımlı.`, 'info');
+      }
     });
   }
 

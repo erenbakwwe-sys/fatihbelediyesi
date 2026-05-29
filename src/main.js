@@ -216,8 +216,8 @@ const handleGarsonCagir = async (e) => {
   overlay.innerHTML = `
     <div class="modal scale-in text-center" style="max-width: 400px; padding: 30px;">
       <span class="material-icons-round text-primary" style="font-size: 54px; margin-bottom: 15px;">notifications_active</span>
-      <h3 style="font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Yardım mı lazım?</h3>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">
+      <h3 style="font-weight: 700; color: var(--color-text); margin-bottom: 10px;">Yardım mı lazım?</h3>
+      <p style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 25px;">
         Masa ${store.currentTable} için ne tür bir talepte bulunmak istersiniz?
       </p>
       <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
