@@ -248,6 +248,91 @@ export function init() {
   let activeCategory = 'all';
   let searchQuery = '';
 
+  // ── Upsell Logic ───────────────────────────────────────
+  function showUpsellPopup(addedItem) {
+    const recommendations = store.getRecommendations(addedItem);
+    if (!recommendations || recommendations.length === 0) return;
+
+    let overlay = document.querySelector('.bottom-popup-overlay');
+    if (overlay) {
+      overlay.remove();
+    }
+
+    overlay = document.createElement('div');
+    overlay.className = 'bottom-popup-overlay';
+    
+    let upsellCardsHTML = recommendations.map(item => `
+      <div class="upsell-card" data-id="${item.id}">
+        <div class="upsell-img-wrap">
+          <img src="${item.image}" alt="${item.name}">
+        </div>
+        <div class="upsell-title">${item.name}</div>
+        <div class="upsell-price">₺${item.price}</div>
+        <button class="btn btn-sm btn-outline btn-upsell-add" style="width:100%;">Ekle</button>
+      </div>
+    `).join('');
+
+    overlay.innerHTML = `
+      <div class="bottom-popup">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h3 style="margin:0; font-weight:700; color:var(--color-primary); display:flex; align-items:center; gap:8px;">
+            <span class="material-icons-round">check_circle</span>
+            Sepete Eklendi
+          </h3>
+          <button class="btn btn-ghost btn-sm" id="btn-close-upsell" style="padding:5px;">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        
+        <p style="color:var(--color-text-muted); font-size:14px; margin-bottom:0;">
+          <strong>${addedItem.name}</strong> başarıyla sepetinize eklendi.
+        </p>
+
+        <div class="upsell-section">
+          <p style="font-size:14px; font-weight:600; margin-bottom:12px;">Bunun yanına iyi gider:</p>
+          <div class="upsell-grid">
+            ${upsellCardsHTML}
+          </div>
+        </div>
+        
+        <div style="margin-top:20px; display:flex; gap:10px;">
+          <button class="btn btn-secondary" id="btn-continue-shopping" style="flex:1;">Alışverişe Devam</button>
+          <button class="btn btn-primary" id="btn-go-to-cart" style="flex:1;">Sepete Git</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      overlay.classList.add('active');
+    });
+
+    const closePopup = () => {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 400);
+    };
+
+    overlay.querySelector('#btn-close-upsell').addEventListener('click', closePopup);
+    overlay.querySelector('#btn-continue-shopping').addEventListener('click', closePopup);
+    overlay.querySelector('#btn-go-to-cart').addEventListener('click', () => {
+      closePopup();
+      window.location.hash = '#/cart';
+    });
+
+    overlay.querySelectorAll('.btn-upsell-add').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = btn.closest('.upsell-card').getAttribute('data-id');
+        const item = store.state.menu.find(m => m.id === id);
+        if (item) {
+          store.addToCart(item, 1, false); // Not silent, show toast
+          closePopup();
+        }
+      });
+    });
+  }
+
   const grid = document.getElementById('menu-grid');
   const emptyState = document.getElementById('menu-empty');
   const searchInput = document.getElementById('menu-search');
@@ -308,7 +393,8 @@ export function init() {
       const menuItem = (store.menu || []).find(m => m.id === itemId);
       if (!menuItem) return;
 
-      store.addToCart(menuItem);
+      store.addToCart(menuItem, 1, true); // Silent add, we'll show popup
+      showUpsellPopup(menuItem);
 
       // Visual feedback
       btn.classList.add('added');

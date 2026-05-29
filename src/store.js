@@ -262,7 +262,7 @@ class Store {
   }
 
   // ── Cart Operations ─────────────────────────────────────────
-  addToCart(item, quantity = 1) {
+  addToCart(item, quantity = 1, silent = false) {
     const existing = this.state.cart.find(c => c.id === item.id);
     if (existing) {
       existing.quantity += quantity;
@@ -277,7 +277,7 @@ class Store {
     }
     this.saveCartToStorage();
     this.emit();
-    showToast(`${item.name} sepete eklendi.`);
+    if (!silent) showToast(`${item.name} sepete eklendi.`);
   }
 
   removeFromCart(itemId) {
@@ -308,6 +308,46 @@ class Store {
 
   getCartTotal() {
     return this.state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }
+
+  // ── Upsell Logic ──────────────────────────────────────────
+  
+  getRecommendations(addedItem) {
+    if (!addedItem || !this.state.menu) return [];
+    
+    // Determine target categories based on added item's category
+    let targetCategories = [];
+    if (addedItem.category === 'kebabs' || addedItem.category === 'mains') {
+      targetCategories = ['drinks', 'desserts', 'starters'];
+    } else if (addedItem.category === 'starters') {
+      targetCategories = ['mains', 'kebabs', 'drinks'];
+    } else if (addedItem.category === 'desserts') {
+      targetCategories = ['drinks'];
+    } else if (addedItem.category === 'drinks') {
+      targetCategories = ['desserts', 'mains', 'kebabs'];
+    } else {
+      targetCategories = ['drinks', 'desserts'];
+    }
+
+    // Filter active items in target categories that are not already in cart
+    const cartIds = this.state.cart.map(c => c.id);
+    const cartIdsWithAdded = new Set([...cartIds, addedItem.id]);
+    
+    let recommendations = this.state.menu.filter(m => 
+      m.active && 
+      targetCategories.includes(m.category) && 
+      !cartIdsWithAdded.has(m.id)
+    );
+
+    // Sort by a mix of popularity (featured) and random to keep it fresh
+    recommendations.sort((a, b) => {
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      return Math.random() - 0.5;
+    });
+
+    // Return top 3 recommendations
+    return recommendations.slice(0, 3);
   }
 
   // ── Firestore Write Operations ──────────────────────────────

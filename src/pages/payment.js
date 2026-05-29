@@ -51,6 +51,29 @@ export function render() {
         </div>
       </div>
 
+      <!-- ═══ SPLIT PAYMENT TOGGLE ═══ -->
+      <div id="split-payment-container" style="padding: 0 1rem;">
+        <p style="font-weight: 600; color: #1A1A2E; margin-bottom: 0.8rem; font-size: 0.95rem;">Hesap Türü</p>
+        
+        <div class="split-payment-toggle">
+          <button class="split-toggle-btn active" id="btn-split-none">Tümünü Öde</button>
+          <button class="split-toggle-btn" id="btn-split-active">Hesabı Böl</button>
+        </div>
+
+        <div id="split-controls" style="display: none; background: #fff; border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem; border: 1px solid var(--color-border); text-align: center;">
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Kaç kişi ödeyeceksiniz?</p>
+          <div class="split-counter">
+            <button class="split-counter-btn" id="btn-split-minus"><span class="material-icons-round">remove</span></button>
+            <div class="split-value" id="split-person-count">2</div>
+            <button class="split-counter-btn" id="btn-split-plus"><span class="material-icons-round">add</span></button>
+          </div>
+          <div style="background: rgba(200, 16, 46, 0.05); padding: 10px; border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--color-primary); font-weight: 600;">Kişi Başı Düşen Tutar</div>
+            <div style="font-size: 20px; font-weight: 800; color: var(--text-dark);" id="split-amount-display">₺${formatPrice(total / 2)}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ PAYMENT METHODS ═══ -->
       <div id="payment-methods" style="padding: 0 1rem;">
         <p style="font-weight: 600; color: #1A1A2E; margin-bottom: 0.8rem; font-size: 0.95rem;">Ödeme Yöntemi</p>
@@ -354,6 +377,73 @@ export function init() {
   const detailArea = document.getElementById('payment-detail');
   let selectedMethod = 'nfc';
 
+  // ── Split Logic ──────────────────────────────────────────
+  let isSplit = false;
+  let splitCount = 2;
+  const totalAmount = store.getCartTotal();
+
+  const btnSplitNone = document.getElementById('btn-split-none');
+  const btnSplitActive = document.getElementById('btn-split-active');
+  const splitControls = document.getElementById('split-controls');
+  const btnSplitMinus = document.getElementById('btn-split-minus');
+  const btnSplitPlus = document.getElementById('btn-split-plus');
+  const splitPersonCount = document.getElementById('split-person-count');
+  const splitAmountDisplay = document.getElementById('split-amount-display');
+
+  function updateSplitUI() {
+    if (isSplit) {
+      btnSplitNone.classList.remove('active');
+      btnSplitActive.classList.add('active');
+      if (splitControls) splitControls.style.display = 'block';
+    } else {
+      btnSplitActive.classList.remove('active');
+      btnSplitNone.classList.add('active');
+      if (splitControls) splitControls.style.display = 'none';
+    }
+    
+    if (splitPersonCount) splitPersonCount.textContent = splitCount;
+    if (splitAmountDisplay) {
+      const perPerson = totalAmount / splitCount;
+      splitAmountDisplay.innerHTML = `₺${formatPrice(perPerson)}`;
+    }
+  }
+
+  if (btnSplitNone) {
+    btnSplitNone.addEventListener('click', () => {
+      isSplit = false;
+      updateSplitUI();
+    });
+  }
+
+  if (btnSplitActive) {
+    btnSplitActive.addEventListener('click', () => {
+      isSplit = true;
+      updateSplitUI();
+    });
+  }
+
+  if (btnSplitMinus) {
+    btnSplitMinus.addEventListener('click', () => {
+      if (splitCount > 2) {
+        splitCount--;
+        updateSplitUI();
+      }
+    });
+  }
+
+  if (btnSplitPlus) {
+    btnSplitPlus.addEventListener('click', () => {
+      if (splitCount < 10) {
+        splitCount++;
+        updateSplitUI();
+      }
+    });
+  }
+  
+  // Initial state
+  updateSplitUI();
+  // ─────────────────────────────────────────────────────────
+
   // Method selection
   if (methodsContainer) {
     methodsContainer.addEventListener('click', (e) => {
@@ -406,9 +496,15 @@ export function init() {
 
   function bindPaymentActions() {
     function processPayment(method) {
-      const note = sessionStorage.getItem('fatih_order_note') || '';
+      let note = sessionStorage.getItem('fatih_order_note') || '';
       const orderId = generateId('ORD');
       sessionStorage.removeItem('fatih_order_note');
+      
+      if (isSplit) {
+        const perPerson = totalAmount / splitCount;
+        const splitNote = `Müşteri hesabı bölmek istedi (${splitCount} kişi). Kişi Başı: ₺${formatPrice(perPerson)}`;
+        note = note ? `${note} | ${splitNote}` : splitNote;
+      }
       
       // placeOrder is now optimistic/local-first — never blocks
       store.placeOrder(orderId, method, note);
