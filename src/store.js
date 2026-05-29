@@ -342,7 +342,11 @@ class Store {
   }
 
   getCartTotal() {
-    return this.state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.state.cart.reduce((sum, item) => {
+      const realItem = this.state.menu.find(m => m.id === item.id);
+      const price = realItem ? realItem.price : item.price;
+      return sum + (price * item.quantity);
+    }, 0);
   }
 
   // ── Upsell Logic ──────────────────────────────────────────
@@ -395,11 +399,20 @@ class Store {
     const finalStatus = isSplit ? 'awaiting_payment' : 'pending';
     const isPickup = !!this.state.currentFacility;
 
+    // Re-verify items and prices from source to prevent tampering
+    const verifiedItems = this.state.cart.map(item => {
+      const realItem = this.state.menu.find(m => m.id === item.id);
+      return {
+        ...item,
+        price: realItem ? realItem.price : item.price
+      };
+    });
+
     const orderData = {
       tableNo: this.state.currentTable || null,
       facilityId: this.state.currentFacility || null,
       orderType: isPickup ? 'pickup' : 'dine_in',
-      items: [...this.state.cart],
+      items: verifiedItems,
       note: note,
       subtotal: this.getCartTotal(),
       total: this.getCartTotal(),
