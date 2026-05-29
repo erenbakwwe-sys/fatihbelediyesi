@@ -29,13 +29,7 @@ import {
 
 import { showToast } from './utils.js';
 
-// Helper: race a promise against a timeout so nothing hangs
-function withTimeout(promise, ms = 1500) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
-  ]);
-}
+// No timeout needed, Firebase handles offline sync internally
 
 class Store {
   constructor() {
@@ -261,7 +255,7 @@ class Store {
         const { id, ...data } = item;
         batch.set(docRef, data);
       });
-      await withTimeout(batch.commit(), 3000);
+      await batch.commit();
     } catch (e) {
       console.warn(`Seeding ${colName} failed (offline mode):`, e.message);
     }
@@ -348,14 +342,14 @@ class Store {
     showToast('Siparişiniz başarıyla mutfağa iletildi!');
 
     // 4) Try Firebase in background (non-blocking)
-    withTimeout(setDoc(doc(db, 'orders', orderId), orderData)).catch(e => {
+    setDoc(doc(db, 'orders', orderId), orderData).catch(e => {
       console.warn('Firebase order save failed (offline):', e.message);
     });
 
     if (this.state.currentTable) {
       const table = this.state.tables.find(t => t.tableNo === this.state.currentTable);
       if (table) {
-        withTimeout(updateDoc(doc(db, 'tables', table.id), { status: 'dining' })).catch(() => {});
+        updateDoc(doc(db, 'tables', table.id), { status: 'dining' }).catch(() => {});
       }
     }
 
@@ -398,7 +392,7 @@ class Store {
     });
 
     if (table && table.status !== 'dining') {
-      withTimeout(updateDoc(doc(db, 'tables', table.id), { status: 'calling' })).catch(() => {});
+      updateDoc(doc(db, 'tables', table.id), { status: 'calling' }).catch(() => {});
     }
   }
 
@@ -419,13 +413,13 @@ class Store {
     showToast('Çağrı tamamlandı.', 'success');
 
     // Firebase in background
-    withTimeout(deleteDoc(doc(db, 'calls', callId))).catch(() => {});
+    deleteDoc(doc(db, 'calls', callId)).catch(() => {});
     if (call) {
       const remainingCalls = this.state.calls.filter(c => c.tableNo === call.tableNo);
       if (remainingCalls.length === 0) {
         const table = this.state.tables.find(t => t.tableNo === call.tableNo);
         if (table) {
-          withTimeout(updateDoc(doc(db, 'tables', table.id), { status: 'empty' })).catch(() => {});
+          updateDoc(doc(db, 'tables', table.id), { status: 'empty' }).catch(() => {});
         }
       }
     }
@@ -439,7 +433,7 @@ class Store {
     showToast('Yeni menü ürünü eklendi.', 'success');
 
     // Firebase background
-    withTimeout(setDoc(doc(db, 'menu', item.id), { ...item, active: true })).catch(e => {
+    setDoc(doc(db, 'menu', item.id), { ...item, active: true }).catch(e => {
       console.warn('Firebase addMenuItem failed:', e.message);
     });
   }
@@ -454,7 +448,7 @@ class Store {
     showToast('Menü ürünü güncellendi.', 'success');
 
     // Firebase background
-    withTimeout(updateDoc(doc(db, 'menu', itemId), data)).catch(e => {
+    updateDoc(doc(db, 'menu', itemId), data).catch(e => {
       console.warn('Firebase updateMenuItem failed:', e.message);
     });
   }
@@ -466,7 +460,7 @@ class Store {
     showToast('Ürün menüden kaldırıldı.', 'info');
 
     // Firebase background
-    withTimeout(deleteDoc(doc(db, 'menu', itemId))).catch(e => {
+    deleteDoc(doc(db, 'menu', itemId)).catch(e => {
       console.warn('Firebase deleteMenuItem failed:', e.message);
     });
   }
@@ -491,7 +485,7 @@ class Store {
 
     // Firebase background
     const { id, ...data } = newTable;
-    withTimeout(setDoc(doc(db, 'tables', id), data)).catch(e => {
+    setDoc(doc(db, 'tables', id), data).catch(e => {
       console.warn('Firebase addTable failed:', e.message);
     });
   }
@@ -523,7 +517,7 @@ class Store {
       this.emit();
       
       // Execute batch silently in background
-      withTimeout(batch.commit()).catch(e => {
+      batch.commit().catch(e => {
         console.warn('Firebase bulk add failed:', e.message);
       });
     }
@@ -541,7 +535,7 @@ class Store {
     showToast('Masa durumu güncellendi.', 'success');
 
     // Firebase background
-    withTimeout(updateDoc(doc(db, 'tables', tableId), { active })).catch(() => {});
+    updateDoc(doc(db, 'tables', tableId), { active }).catch(() => {});
   }
 
   // 5. Admin Order Actions
@@ -561,11 +555,11 @@ class Store {
     showToast(`Sipariş durumu: ${statusTexts[status]}`, 'success');
 
     // Firebase background
-    withTimeout(updateDoc(doc(db, 'orders', orderId), { status })).catch(() => {});
+    updateDoc(doc(db, 'orders', orderId), { status }).catch(() => {});
     if (status === 'delivered' && order) {
       const table = this.state.tables.find(t => t.tableNo === order.tableNo);
       if (table) {
-        withTimeout(updateDoc(doc(db, 'tables', table.id), { status: 'empty' })).catch(() => {});
+        updateDoc(doc(db, 'tables', table.id), { status: 'empty' }).catch(() => {});
       }
     }
   }
@@ -600,7 +594,7 @@ class Store {
     showToast('Ödül kullanıldı olarak işaretlendi.', 'success');
 
     // Firebase background
-    withTimeout(updateDoc(doc(db, 'rewards', rewardId), { used: true })).catch(() => {});
+    updateDoc(doc(db, 'rewards', rewardId), { used: true }).catch(() => {});
   }
 }
 
