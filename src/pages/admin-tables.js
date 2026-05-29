@@ -275,15 +275,20 @@ export function init() {
         return;
       }
 
-      const btn = form.querySelector('button[type="submit"]');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<span class="material-icons-round" style="animation: spin 1s linear infinite;">autorenew</span> Oluşturuluyor...`;
-      btn.disabled = true;
+      const btn = document.querySelector('button[form="add-table-form"]');
+      let originalText = '';
+      if (btn) {
+        originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="material-icons-round" style="animation: spin 1s linear infinite;">autorenew</span> Oluşturuluyor...`;
+        btn.disabled = true;
+      }
 
       const added = await store.addTablesBulk(totalCount);
 
-      btn.innerHTML = originalText;
-      btn.disabled = false;
+      if (btn) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
 
       closeModal();
       
