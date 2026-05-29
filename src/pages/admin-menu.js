@@ -628,16 +628,15 @@ export function init() {
       const itemData = { name, description, price, category, image, active };
 
       if (editingItem) {
-        store.updateMenuItem && store.updateMenuItem(editingItem.id, itemData);
-        showToast && showToast('Ürün güncellendi', 'success');
+        store.updateMenuItem(editingItem.id, itemData);
       } else {
-        const newItem = { id: generateId ? generateId() : 'item-' + Date.now(), ...itemData };
-        store.addMenuItem && store.addMenuItem(newItem);
-        showToast && showToast('Yeni ürün eklendi', 'success');
+        const newItem = { id: generateId('MENU'), ...itemData };
+        store.addMenuItem(newItem);
       }
 
       closeModal();
-      reRender();
+      // Small delay to let store update before re-render
+      setTimeout(() => reRender(), 50);
     });
   }
 
@@ -653,12 +652,7 @@ export function init() {
   document.querySelectorAll('[data-toggle-item]').forEach(toggle => {
     toggle.addEventListener('change', () => {
       const id = toggle.dataset.toggleItem;
-      const menu = store.menu || [];
-      const item = menu.find(i => i.id === id);
-      if (item && store.updateMenuItem) {
-        store.updateMenuItem(id, { active: toggle.checked });
-        showToast && showToast(toggle.checked ? 'Ürün aktif edildi' : 'Ürün pasif edildi', 'info');
-      }
+      store.updateMenuItem(id, { active: toggle.checked });
     });
   });
 
@@ -698,13 +692,12 @@ export function init() {
   const btnConfirmDel = document.getElementById('btnConfirmDelete');
   if (btnConfirmDel) {
     btnConfirmDel.addEventListener('click', () => {
-      if (deleteTargetId && store.deleteMenuItem) {
+      if (deleteTargetId) {
         store.deleteMenuItem(deleteTargetId);
-        showToast && showToast('Ürün silindi', 'success');
       }
       deleteModal.style.display = 'none';
       deleteTargetId = null;
-      reRender();
+      setTimeout(() => reRender(), 50);
     });
   }
 

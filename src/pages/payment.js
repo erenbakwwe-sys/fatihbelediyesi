@@ -380,24 +380,14 @@ export function init() {
   bindPaymentActions();
 
   function bindPaymentActions() {
-    async function processPayment(method, btnEl) {
+    function processPayment(method) {
       const note = sessionStorage.getItem('fatih_order_note') || '';
       const orderId = generateId('ORD');
+      sessionStorage.removeItem('fatih_order_note');
       
-      if (store.placeOrder) {
-        try {
-          await store.placeOrder(orderId, method, note);
-          sessionStorage.removeItem('fatih_order_note');
-          showSuccess();
-        } catch (e) {
-          if (btnEl) {
-            btnEl.disabled = false;
-            btnEl.innerHTML = 'Hata! Tekrar Dene';
-          }
-        }
-      } else {
-        showSuccess();
-      }
+      // placeOrder is now optimistic/local-first — never blocks
+      store.placeOrder(orderId, method, note);
+      showSuccess();
     }
 
     // NFC Payment
@@ -409,10 +399,7 @@ export function init() {
           <div class="payment-spinner" style="width: 20px; height: 20px; border-width: 3px;"></div>
           İşleniyor...
         `;
-
-        setTimeout(() => {
-          processPayment('nfc', nfcBtn);
-        }, 2000);
+        setTimeout(() => processPayment('nfc'), 1500);
       });
     }
 
@@ -425,10 +412,7 @@ export function init() {
           <div class="payment-spinner" style="width: 20px; height: 20px; border-width: 3px;"></div>
           İşleniyor...
         `;
-
-        setTimeout(() => {
-          processPayment('card', cardBtn);
-        }, 2000);
+        setTimeout(() => processPayment('card'), 1500);
       });
     }
 
@@ -457,8 +441,11 @@ export function init() {
     if (cashBtn) {
       cashBtn.addEventListener('click', () => {
         cashBtn.disabled = true;
-        cashBtn.innerHTML = `İşleniyor...`;
-        processPayment('cash', cashBtn);
+        cashBtn.innerHTML = `
+          <div class="payment-spinner" style="width: 20px; height: 20px; border-width: 3px;"></div>
+          İşleniyor...
+        `;
+        setTimeout(() => processPayment('cash'), 1000);
       });
     }
   }
