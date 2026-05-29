@@ -4,9 +4,19 @@
 import { store } from '../store.js';
 import { formatPrice, showToast, generateId } from '../utils.js';
 
+let savedCart = [];
+let savedTotal = 0;
+
 export function render() {
-  const cart = store.cart || [];
-  const total = store.getCartTotal ? store.getCartTotal() : 0;
+  // Save cart data before it gets cleared by placeOrder
+  const currentCart = store.cart || [];
+  const currentTotal = store.getCartTotal ? store.getCartTotal() : 0;
+  if (currentCart.length > 0) {
+    savedCart = [...currentCart];
+    savedTotal = currentTotal;
+  }
+  const cart = savedCart.length > 0 ? savedCart : currentCart;
+  const total = savedCart.length > 0 ? savedTotal : currentTotal;
 
   return `
     <div class="payment-page" style="padding-bottom: 3rem; max-width: 600px; margin: 0 auto;">
@@ -315,13 +325,28 @@ function renderCashDetail() {
 }
 
 function showSuccess() {
-  const overlay = document.getElementById('payment-success-overlay');
-  if (overlay) {
+  let overlay = document.getElementById('payment-success-overlay');
+  if (!overlay) {
+    // Create overlay dynamically on body so it survives page transitions
+    overlay = document.createElement('div');
+    overlay.id = 'payment-success-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(26,26,46,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;';
+    overlay.innerHTML = `
+      <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;animation:successPop 0.6s cubic-bezier(0.22,1,0.36,1);box-shadow:0 0 60px rgba(34,197,94,0.4);">
+        <span class="material-icons-round" style="font-size:3rem;color:#fff;">check</span>
+      </div>
+      <h2 style="color:#fff;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">Ödeme Başarılı!</h2>
+      <p style="color:rgba(255,255,255,0.7);font-size:0.95rem;margin-bottom:2rem;">Ödemeniz başarıyla tamamlandı</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Kazı-kazan kartınıza yönlendiriliyorsunuz...</p>
+    `;
+    document.body.appendChild(overlay);
+  } else {
     overlay.style.display = 'flex';
-    setTimeout(() => {
-      window.location.hash = '#/scratch';
-    }, 2500);
   }
+  setTimeout(() => {
+    overlay.remove();
+    window.location.hash = '#/scratch';
+  }, 2000);
 }
 
 export function init() {

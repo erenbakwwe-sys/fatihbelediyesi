@@ -205,12 +205,10 @@ store.subscribe((state, event, payload) => {
   }
 });
 
-// ── Header Interactions ─────────────────────────────────────
 const handleGarsonCagir = async (e) => {
   e.stopPropagation();
   if (!store.currentTable) {
-    showToast('Garson çağırmak için lütfen QR kodu okutun veya bir masa seçin.', 'warning');
-    return;
+    store.setTable(1);
   }
   
   const overlay = document.createElement('div');
