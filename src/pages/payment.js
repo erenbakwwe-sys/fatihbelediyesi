@@ -52,6 +52,7 @@ export function render() {
       </div>
 
       <!-- ═══ SPLIT PAYMENT TOGGLE ═══ -->
+      ${!store.state.currentFacility ? `
       <div id="split-payment-container" style="padding: 0 1rem;">
         <p style="font-weight: 600; color: #1A1A2E; margin-bottom: 0.8rem; font-size: 0.95rem;">Hesap Türü</p>
         
@@ -73,6 +74,7 @@ export function render() {
           </div>
         </div>
       </div>
+      ` : ''}
 
       <!-- ═══ PAYMENT METHODS ═══ -->
       <div id="payment-methods" style="padding: 0 1rem;">

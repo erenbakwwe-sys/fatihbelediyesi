@@ -1353,7 +1353,22 @@
   height: 10px;
   border-radius: 50%;
   background: var(--color-warning);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 5px 15px rgba(26, 26, 46, 0.4);
+}
+
+/* Pickup (Gel-Al) Styles */
+.table-badge.pickup {
+  background: rgba(37,99,235,0.1);
+  color: #2563eb;
+}
+
+.order-table-info.pickup {
+  color: #2563eb;
+  font-weight: 700;
+  background: rgba(37,99,235,0.08);
+  border-radius: 8px;
+  padding: 4px 10px;
+  display: inline-flex;
 }
 
 .call-card-table {

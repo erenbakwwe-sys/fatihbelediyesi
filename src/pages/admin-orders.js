@@ -95,9 +95,9 @@ export function render() {
                 </div>
 
                 <div class="order-card-body">
-                  <div class="order-table-info">
-                    <span class="material-icons-round">table_restaurant</span>
-                    <span>Masa ${order.tableNo}</span>
+                  <div class="order-table-info ${order.orderType === 'pickup' ? 'pickup' : ''}">
+                    <span class="material-icons-round">${order.orderType === 'pickup' ? 'storefront' : 'table_restaurant'}</span>
+                    <span>${order.orderType === 'pickup' ? `Gel-Al (Tesis)` : `Masa ${order.tableNo}`}</span>
                   </div>
 
                   <div class="order-items-list">

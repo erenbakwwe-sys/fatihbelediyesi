@@ -112,6 +112,7 @@ router.setContainer(pageContent);
 // ── Register SPA Routes ──────────────────────────────────────
 router.addRoute('/', () => import('./pages/landing.js'));
 router.addRoute('/menu', () => import('./pages/menu.js'));
+router.addRoute('/facilities', () => import('./pages/facilities.js'));
 router.addRoute('/cart', () => import('./pages/cart.js'));
 router.addRoute('/payment', () => import('./pages/payment.js'));
 router.addRoute('/join-payment', () => import('./pages/join-payment.js'));
@@ -195,14 +196,37 @@ store.subscribe((state, event, payload) => {
   const tableIndicatorHeader = document.getElementById('header-table-indicator');
   const tableTextHeader = document.getElementById('header-table-text');
 
+  const btnGarsonHeader = document.getElementById('header-garson-cagir');
+  const btnGarsonDrawer = document.getElementById('nav-garson-cagir');
+
   if (state.currentTable) {
     if (tableTextDrawer) tableTextDrawer.textContent = `Masa ${state.currentTable}`;
     if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'flex';
     if (tableTextHeader) tableTextHeader.textContent = `Masa ${state.currentTable}`;
     if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'flex';
+    if (btnGarsonHeader) btnGarsonHeader.style.display = 'inline-flex';
+    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'flex';
+  } else if (state.currentFacility) {
+    const facilitiesMap = {
+      'catladikapi': 'Çatladıkapı',
+      'topkapi': 'Topkapı',
+      'ayvansaray': 'Ayvansaray',
+      'yedikule': 'Yedikule',
+      'sultanahmet': 'Sultanahmet',
+      'karagumruk': 'Karagümrük'
+    };
+    const facName = facilitiesMap[state.currentFacility] || 'Tesis';
+    if (tableTextDrawer) tableTextDrawer.textContent = `Gel-Al: ${facName}`;
+    if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'flex';
+    if (tableTextHeader) tableTextHeader.textContent = `Gel-Al: ${facName}`;
+    if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'flex';
+    if (btnGarsonHeader) btnGarsonHeader.style.display = 'none';
+    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'none';
   } else {
     if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'none';
     if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'none';
+    if (btnGarsonHeader) btnGarsonHeader.style.display = 'none';
+    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'none';
   }
 });
 

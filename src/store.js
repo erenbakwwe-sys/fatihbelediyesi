@@ -44,6 +44,7 @@ class Store {
       rewards: INITIAL_REWARDS,
       cart: this.loadCartFromStorage(),
       currentTable: this.parseTableFromUrl(),
+      currentFacility: this.parseFacilityFromUrl(),
       loading: false
     };
 
@@ -114,6 +115,8 @@ class Store {
     
     if (table) {
       sessionStorage.setItem('fatih_active_table', table);
+      sessionStorage.removeItem('fatih_active_facility'); // Clear facility if table is set
+      this.state.currentFacility = null;
       return parseInt(table, 10);
     }
     
@@ -121,12 +124,46 @@ class Store {
     return sessionTable ? parseInt(sessionTable, 10) : null;
   }
 
+  parseFacilityFromUrl() {
+    const searchParams = new URLSearchParams(window.location.search);
+    let facility = searchParams.get('facility');
+    
+    if (!facility) {
+      const hash = window.location.hash;
+      const match = hash.match(/[?&]facility=([^&]+)/);
+      facility = match ? match[1] : null;
+    }
+    
+    if (facility) {
+      sessionStorage.setItem('fatih_active_facility', facility);
+      sessionStorage.removeItem('fatih_active_table'); // Clear table if facility is set
+      this.state.currentTable = null;
+      return facility;
+    }
+    
+    return sessionStorage.getItem('fatih_active_facility');
+  }
+
   setTable(tableNo) {
     this.state.currentTable = tableNo;
+    this.state.currentFacility = null;
     if (tableNo) {
       sessionStorage.setItem('fatih_active_table', tableNo);
+      sessionStorage.removeItem('fatih_active_facility');
     } else {
       sessionStorage.removeItem('fatih_active_table');
+    }
+    this.emit();
+  }
+
+  setFacility(facilityId) {
+    this.state.currentFacility = facilityId;
+    this.state.currentTable = null;
+    if (facilityId) {
+      sessionStorage.setItem('fatih_active_facility', facilityId);
+      sessionStorage.removeItem('fatih_active_table');
+    } else {
+      sessionStorage.removeItem('fatih_active_facility');
     }
     this.emit();
   }
@@ -358,9 +395,12 @@ class Store {
 
     const isSplit = splitCount > 1;
     const finalStatus = isSplit ? 'awaiting_payment' : 'pending';
+    const isPickup = !!this.state.currentFacility;
 
     const orderData = {
-      tableNo: this.state.currentTable || 1,
+      tableNo: this.state.currentTable || null,
+      facilityId: this.state.currentFacility || null,
+      orderType: isPickup ? 'pickup' : 'dine_in',
       items: [...this.state.cart],
       note: note,
       subtotal: this.getCartTotal(),

@@ -8,6 +8,20 @@ export function render() {
   const categories = store.categories || [];
   const menu = (store.menu || []).filter(item => item.active !== false);
   const hasTable = !!store.currentTable;
+  const hasFacility = !!store.state.currentFacility;
+  
+  let facilityName = '';
+  if (hasFacility) {
+    const facilitiesMap = {
+      'catladikapi': 'Çatladıkapı Sosyal Tesisleri',
+      'topkapi': 'Topkapı Sosyal Tesisleri',
+      'ayvansaray': 'Ayvansaray Sosyal Tesisleri',
+      'yedikule': 'Yedikule Hisarı Tesisleri',
+      'sultanahmet': 'Sultanahmet Meydan Kafe',
+      'karagumruk': 'Karagümrük Sosyal Tesisi'
+    };
+    facilityName = facilitiesMap[store.state.currentFacility] || 'Sosyal Tesis';
+  }
 
   return `
     <div class="menu-page" style="padding-bottom: 3rem;">
@@ -27,8 +41,23 @@ export function render() {
         </p>
       </div>
 
-      <!-- ═══ QR WARNING ═══ -->
-      ${!hasTable ? `
+      <!-- ═══ QR WARNING / FACILITY INFO ═══ -->
+      ${hasFacility ? `
+        <div id="facility-info" style="
+          margin: 1.5rem 1rem 0; padding: 1rem 1.2rem;
+          background: linear-gradient(135deg, #d1e7dd, #badbcc);
+          border: 1px solid #0f5132; border-radius: 12px;
+          display: flex; align-items: flex-start; gap: 0.8rem;
+        ">
+          <span class="material-icons-round" style="color: #0f5132; font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;">storefront</span>
+          <div>
+            <strong style="color: #0f5132; font-size: 0.95rem;">Gel-Al Siparişi</strong>
+            <p style="color: #0f5132; font-size: 0.85rem; margin-top: 0.3rem; line-height: 1.5;">
+              Şu anda <b>${facilityName}</b> için Gel-Al siparişi oluşturuyorsunuz. Siparişiniz siz tesise vardığınızda hazır olacak.
+            </p>
+          </div>
+        </div>
+      ` : (!hasTable ? `
         <div id="qr-warning" style="
           margin: 1.5rem 1rem 0; padding: 1rem 1.2rem;
           background: linear-gradient(135deg, #fff3cd, #ffeeba);
@@ -39,11 +68,11 @@ export function render() {
           <div>
             <strong style="color: #856404; font-size: 0.95rem;">QR Kod Okutulmadı</strong>
             <p style="color: #856404; font-size: 0.85rem; margin-top: 0.3rem; line-height: 1.5;">
-              Sipariş verebilmek ve garson çağırabilmek için lütfen masanızdaki QR kodu telefonunuzun kamerasıyla okutun.
+              Masaya sipariş verebilmek için lütfen masanızdaki QR kodu okutun. Veya haritadan tesis seçerek Gel-Al siparişi verin.
             </p>
           </div>
         </div>
-      ` : ''}
+      ` : '')}
 
       <!-- ═══ SEARCH BAR ═══ -->
       <div style="padding: 1.2rem 1rem 0;">

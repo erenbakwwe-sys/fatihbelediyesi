@@ -26,7 +26,7 @@ export function render() {
 
       <div class="landing-hero__content" style="position: relative; z-index: 2; max-width: 680px; padding: 2rem;">
         <img src="/images/fatih-belediyesi-logo.png" alt="Fatih Belediyesi" class="reveal"
-             style="width: 120px; height: 120px; object-fit: contain; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3)); border-radius: 50%; background: rgba(255,255,255,0.12); padding: 10px;" />
+             style="width: 160px; height: auto; object-fit: contain; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3));" />
 
         <h1 class="reveal" style="
           font-size: 3rem; font-weight: 800; color: #fff;
@@ -46,16 +46,30 @@ export function render() {
           font-style: italic;
         ">Sayın Başkanımız M. Ergün Turan'ın liderliğinde Fatih Belediyesi olarak sunduğumuz bu dijital hizmetle, tesislerimizde çağın gerekliliklerine uygun akıllı, hızlı ve modern bir servis deneyimi sunuyoruz.</p>
  
-        <button class="btn btn-primary btn-lg reveal"
-                onclick="window.location.hash='#/menu'"
-                style="
-          font-size: 1.1rem; padding: 1rem 2.8rem;
-          border-radius: 60px; box-shadow: 0 8px 32px rgba(200,16,46,0.45);
-          display: inline-flex; align-items: center; gap: 0.6rem;
-        ">
-          <span class="material-icons-round">restaurant_menu</span>
-          Menüyü Gör
-        </button>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;" class="reveal">
+          <button class="btn btn-primary btn-lg"
+                  onclick="window.location.hash='#/menu'"
+                  style="
+            font-size: 1.1rem; padding: 1rem 2.8rem;
+            border-radius: 60px; box-shadow: 0 8px 32px rgba(200,16,46,0.45);
+            display: inline-flex; align-items: center; gap: 0.6rem;
+          ">
+            <span class="material-icons-round">restaurant_menu</span>
+            Menüyü Gör
+          </button>
+          
+          <button class="btn btn-lg"
+                  onclick="window.location.hash='#/facilities'"
+                  style="
+            font-size: 1.1rem; padding: 1rem 2.8rem;
+            border-radius: 60px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            background: #fff; color: var(--color-primary); border: 2px solid #fff;
+            display: inline-flex; align-items: center; gap: 0.6rem;
+          ">
+            <span class="material-icons-round">map</span>
+            Gel-Al Noktası Seç
+          </button>
+        </div>
  
         <div class="reveal" style="margin-top: 2.5rem;">
           <span class="material-icons-round" style="color: rgba(255,255,255,0.4); font-size: 2rem; animation: bounce-down 2s infinite;">expand_more</span>

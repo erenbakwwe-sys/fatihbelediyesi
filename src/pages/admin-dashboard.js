@@ -120,9 +120,9 @@ export function render() {
                     <tr>
                       <td><strong>#${order.id ? order.id.slice(-6).toUpperCase() : '---'}</strong></td>
                       <td>
-                        <span class="table-badge">
-                          <span class="material-icons-round">table_restaurant</span>
-                          Masa ${order.tableNo}
+                        <span class="table-badge ${order.orderType === 'pickup' ? 'pickup' : ''}">
+                          <span class="material-icons-round">${order.orderType === 'pickup' ? 'storefront' : 'table_restaurant'}</span>
+                          ${order.orderType === 'pickup' ? 'Gel-Al (Tesis)' : `Masa ${order.tableNo}`}
                         </span>
                       </td>
                       <td class="items-cell">${(order.items || []).map(i => i.name || i).join(', ').substring(0, 40)}${(order.items || []).map(i => i.name || i).join(', ').length > 40 ? '...' : ''}</td>
