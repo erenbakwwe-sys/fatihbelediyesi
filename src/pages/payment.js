@@ -405,12 +405,12 @@ export function init() {
 
   function updateSplitUI() {
     if (isSplit) {
-      btnSplitNone.classList.remove('active');
-      btnSplitActive.classList.add('active');
+      if (btnSplitNone) btnSplitNone.classList.remove('active');
+      if (btnSplitActive) btnSplitActive.classList.add('active');
       if (splitControls) splitControls.style.display = 'block';
     } else {
-      btnSplitActive.classList.remove('active');
-      btnSplitNone.classList.add('active');
+      if (btnSplitActive) btnSplitActive.classList.remove('active');
+      if (btnSplitNone) btnSplitNone.classList.add('active');
       if (splitControls) splitControls.style.display = 'none';
     }
     
