@@ -97,6 +97,13 @@ const APP_SHELL = `
       <p>&copy; ${new Date().getFullYear()} Fatih Belediyesi Bilgi İşlem Müdürlüğü. Tüm Hakları Saklıdır.</p>
     </div>
   </footer>
+
+  <!-- Garson Çağır Floating Action Button -->
+  <button id="garson-fab" aria-label="Garson Çağır">
+    <span class="material-icons-round fab-icon">notifications_active</span>
+    <span class="fab-label">Garson Çağır</span>
+    <div class="fab-countdown"></div>
+  </button>
 `;
 
 // Initialize Application Layout
@@ -228,24 +235,47 @@ store.subscribe((state, event, payload) => {
     if (btnGarsonHeader) btnGarsonHeader.style.display = 'none';
     if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'none';
   }
+  
+  // ── FAB visibility: hide on admin routes and Gel-Al mode ──
+  const garsonFab = document.getElementById('garson-fab');
+  if (garsonFab) {
+    const currentHash = window.location.hash || '';
+    if (currentHash.startsWith('#/admin')) {
+      garsonFab.style.display = 'none';
+    } else if (state.currentFacility) {
+      garsonFab.style.display = 'none';
+    } else {
+      garsonFab.style.display = 'flex';
+    }
+  }
 });
+
+// ── Garson Çağır — FAB + Spam Protection ─────────────────────
+let garsonCooldownActive = false;
+const GARSON_COOLDOWN_SECONDS = 60;
 
 const handleGarsonCagir = async (e) => {
   e.stopPropagation();
   
-  // Mobil menüyü kapat (çekmeceyi kapat ki modal düzgün görünsün)
+  // Close mobile drawer if open
   const navLinksEl = document.getElementById('navbar-links');
   const toggleBtn = document.getElementById('navbar-toggle-btn');
   if (navLinksEl) navLinksEl.classList.remove('open');
   if (toggleBtn) toggleBtn.classList.remove('active');
 
+  // Block if cooldown active
+  if (garsonCooldownActive) {
+    showToast('Garson çağrınız iletildi, lütfen bekleyin.', 'info');
+    return;
+  }
+
+  // Block if no QR scanned
   if (!store.state.currentTable) {
-    import('./utils.js').then(({ showToast }) => {
-      showToast('Lütfen önce masanızdaki QR kodu okutun.', 'error');
-    });
+    showToast('Lütfen önce masanızdaki QR kodu okutun.', 'error');
     return;
   }
   
+  // Show call type modal
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay fade-in';
   overlay.innerHTML = `
@@ -253,7 +283,7 @@ const handleGarsonCagir = async (e) => {
       <span class="material-icons-round text-primary" style="font-size: 54px; margin-bottom: 15px;">notifications_active</span>
       <h3 style="font-weight: 700; color: var(--color-text); margin-bottom: 10px;">Yardım mı lazım?</h3>
       <p style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 25px;">
-        Masa ${store.currentTable} için ne tür bir talepte bulunmak istersiniz?
+        Masa ${store.state.currentTable} için ne tür bir talepte bulunmak istersiniz?
       </p>
       <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
         <button class="btn btn-primary btn-call-type" data-type="garson">
@@ -277,6 +307,7 @@ const handleGarsonCagir = async (e) => {
       const type = btn.getAttribute('data-type');
       overlay.remove();
       await store.addCall(type);
+      startGarsonCooldown();
     });
   });
 
@@ -285,11 +316,46 @@ const handleGarsonCagir = async (e) => {
   });
 };
 
+function startGarsonCooldown() {
+  garsonCooldownActive = true;
+  const fab = document.getElementById('garson-fab');
+  if (!fab) return;
+
+  // Flash green success first
+  fab.classList.add('fab-success');
+  const labelEl = fab.querySelector('.fab-label');
+  if (labelEl) labelEl.textContent = 'Çağrıldı ✓';
+
+  setTimeout(() => {
+    fab.classList.remove('fab-success');
+    fab.classList.add('fab-cooldown');
+
+    let remaining = GARSON_COOLDOWN_SECONDS;
+    if (labelEl) labelEl.textContent = `${remaining}s bekleyin`;
+
+    const interval = setInterval(() => {
+      remaining--;
+      if (labelEl) labelEl.textContent = `${remaining}s bekleyin`;
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        garsonCooldownActive = false;
+        fab.classList.remove('fab-cooldown');
+        if (labelEl) labelEl.textContent = 'Garson Çağır';
+      }
+    }, 1000);
+  }, 1500);
+}
+
+// Bind FAB click
+const garsonFabBtn = document.getElementById('garson-fab');
+if (garsonFabBtn) garsonFabBtn.addEventListener('click', handleGarsonCagir);
+
+// Also keep navbar buttons working
 const garsonBtnDrawer = document.getElementById('nav-garson-cagir');
 const garsonBtnHeader = document.getElementById('header-garson-cagir');
 if (garsonBtnDrawer) garsonBtnDrawer.addEventListener('click', handleGarsonCagir);
 if (garsonBtnHeader) garsonBtnHeader.addEventListener('click', handleGarsonCagir);
-// Garson call listeners bound above successfully
 
 // ── Preloader Animation Dismissal ───────────────────────────
 window.addEventListener('load', () => {

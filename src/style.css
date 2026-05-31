@@ -3281,3 +3281,119 @@ html.dark {
   min-width: 30px;
   text-align: center;
 }
+
+/* ────────────────────────────────────────────────────────────
+   GARSON ÇAĞIR — Floating Action Button (FAB)
+   ──────────────────────────────────────────────────────────── */
+#garson-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 20px;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 60px;
+  background: linear-gradient(135deg, #C8102E 0%, #e8334e 100%);
+  color: #fff;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(200, 16, 46, 0.4),
+              0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fabPulseGlow 3s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+#garson-fab .fab-icon {
+  font-size: 1.3rem;
+  animation: fabBell 4s ease-in-out infinite;
+}
+
+#garson-fab .fab-label {
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+#garson-fab:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 32px rgba(200, 16, 46, 0.5),
+              0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#garson-fab:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Cooldown / Disabled state */
+#garson-fab.fab-cooldown {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  box-shadow: 0 4px 16px rgba(107, 114, 128, 0.3);
+  cursor: not-allowed;
+  pointer-events: none;
+  animation: none;
+}
+
+#garson-fab.fab-cooldown .fab-icon {
+  animation: none;
+}
+
+/* Cooldown countdown ring */
+#garson-fab .fab-countdown {
+  display: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  animation: fabCountdownSpin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+#garson-fab.fab-cooldown .fab-countdown {
+  display: block;
+}
+
+/* Success flash */
+#garson-fab.fab-success {
+  background: linear-gradient(135deg, #10B981, #34d399);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+  animation: none;
+}
+
+/* Hide in admin and facility (Gel-Al) mode */
+body.admin-mode #garson-fab,
+body.facility-mode #garson-fab {
+  display: none !important;
+}
+
+@keyframes fabPulseGlow {
+  0%, 100% { box-shadow: 0 6px 24px rgba(200, 16, 46, 0.4), 0 2px 8px rgba(0, 0, 0, 0.12); }
+  50% { box-shadow: 0 6px 32px rgba(200, 16, 46, 0.55), 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 8px rgba(200, 16, 46, 0.08); }
+}
+
+@keyframes fabBell {
+  0%, 80%, 100% { transform: rotate(0); }
+  85% { transform: rotate(12deg); }
+  90% { transform: rotate(-12deg); }
+  95% { transform: rotate(6deg); }
+}
+
+@keyframes fabCountdownSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile: smaller label on very small screens */
+@media (max-width: 380px) {
+  #garson-fab {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    bottom: 20px;
+    right: 14px;
+  }
+}
