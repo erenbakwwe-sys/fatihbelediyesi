@@ -19,7 +19,7 @@ export function render() {
   const total = savedCart.length > 0 ? savedTotal : currentTotal;
 
   return `
-    <div class="payment-page" style="padding-bottom: 3rem; max-width: 600px; margin: 0 auto;">
+    <div class="payment-page" style="padding-bottom: 140px; max-width: 600px; margin: 0 auto; background: #fff; min-height: 100vh;">
 
       <!-- ═══ HEADER ═══ -->
       <div style="text-align: center; padding: 1.5rem 1rem 1rem;">

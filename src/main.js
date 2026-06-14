@@ -11,92 +11,67 @@ import router from './router.js';
 import store from './store.js';
 import { showToast } from './utils.js';
 
+// ── Route title mapping ─────────────────────────────────────
+const ROUTE_TITLES = {
+  '/': null, // Landing page shows logo instead of title
+  '/menu': 'Menü',
+  '/cart': 'Sepetim',
+  '/orders': 'Siparişlerim',
+  '/facilities': 'Tesisler',
+  '/payment': 'Ödeme',
+  '/join-payment': 'Ortak Ödeme',
+  '/scratch': 'Kazı Kazan',
+};
+
 // ── App HTML Shell Template ─────────────────────────────────
 const APP_SHELL = `
-  <!-- Top Navigation Header (Customer Side) -->
-  <nav class="navbar">
-    <div class="navbar-inner" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-      <a href="#/" class="navbar-brand">
+  <!-- Clean Top Header (Customer Side) -->
+  <header class="app-top-header" id="app-top-header">
+    <button class="top-header-back" id="top-header-back" onclick="history.back()" aria-label="Geri">
+      <span class="material-icons-round">arrow_back</span>
+    </button>
+    <div class="top-header-center" id="top-header-center">
+      <a href="#/" class="top-header-logo" id="top-header-logo">
         <img src="/images/fatih-belediyesi-logo.png" alt="Fatih Belediyesi" />
       </a>
-      
-      <!-- Quick Action Buttons Directly in Header for Mobile/Desktop -->
-      <div class="navbar-quick-actions" style="display: flex; align-items: center; gap: 8px; margin-left: auto; margin-right: 8px; z-index: var(--z-sticky);">
-        <div id="header-table-indicator" class="table-badge" style="display: none; padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--color-primary); background: rgba(200,16,46,0.08); border-radius: 20px; align-items: center; gap: 4px; border: 1px solid rgba(200,16,46,0.12);">
-          <span class="material-icons-round" style="font-size: 13px;">table_restaurant</span>
-          <span id="header-table-text">Masa</span>
-        </div>
-        
-        <button id="header-garson-cagir" class="btn-call-waiter" style="padding: 5px 12px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; background: var(--color-primary); color: #fff; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(200,16,46,0.2);">
-          <span class="material-icons-round" style="font-size: 14px;">notifications_active</span>
-          <span class="header-call-text">Garson Çağır</span>
-        </button>
-        
-        <a href="#/cart" class="cart-icon-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #f5f5f5; color: var(--color-secondary); text-decoration: none; border: 1.5px solid #eef0f5; transition: all 0.2s;">
-          <span class="material-icons-round" style="font-size: 18px;">shopping_basket</span>
-          <span id="header-cart-badge" class="cart-badge" style="position: absolute; top: -4px; right: -4px; background: var(--color-primary); color: #fff; font-size: 9px; font-weight: 700; width: 15px; height: 15px; border-radius: 50%; display: none; align-items: center; justify-content: center; animation: pulse 2s ease-in-out infinite;">0</span>
-        </a>
-      </div>
-
-      <!-- Mobile Toggle Button -->
-      <button class="navbar-toggle" id="navbar-toggle-btn">
-        <span></span>
-      </button>
-
-      <div class="navbar-nav" id="navbar-links">
-        <a href="#/" class="nav-item">Ana Sayfa</a>
-        <a href="#/menu" class="nav-item">Dijital Menü</a>
-        <a href="#/cart" class="nav-item">Sepetim</a>
-        <a href="#/orders" class="nav-item">Sipariş Takibi</a>
-        
-        <!-- Table indicator badge inside mobile menu or header -->
-        <div id="nav-table-indicator" class="table-badge" style="display: none; padding: 6px 12px; font-size:13px; font-weight:600; color:var(--color-primary); background:rgba(200,16,46,0.08); border-radius:20px; align-items:center; gap:4px;">
-          <span class="material-icons-round" style="font-size:16px;">table_restaurant</span>
-          <span id="nav-table-text">Masa</span>
-        </div>
-        
-        <button id="nav-garson-cagir" class="btn-call-waiter">
-          <span class="material-icons-round">notifications_active</span>
-          <span>Garson Çağır</span>
-        </button>
-        
-        <a href="#/cart" class="cart-icon-wrapper-drawer" style="display:none;">
-          <span class="material-icons-round">shopping_basket</span>
-          <span id="nav-cart-badge" class="cart-badge">0</span>
-        </a>
-      </div>
+      <span class="top-header-title" id="top-header-title"></span>
     </div>
-  </nav>
+    <a href="#/cart" class="top-header-cart" aria-label="Sepet">
+      <span class="material-icons-round">shopping_bag</span>
+      <span class="top-header-cart-badge" id="top-header-cart-badge">0</span>
+    </a>
+  </header>
 
-  <!-- Dynamic Page Workspace with offset padding-top class -->
+  <!-- Dynamic Page Workspace -->
   <main id="page-content" class="page-content"></main>
 
-  <!-- Footer (Customer Side) -->
-  <footer class="footer">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <img src="/images/fatih-belediyesi-logo.png" alt="Fatih Belediyesi" class="footer-logo" />
-        <p class="footer-slogan">"Fatih Belediyesi öncülüğünde akıllı, hızlı ve modern hizmet deneyimi"</p>
-      </div>
-      <div class="footer-links">
-        <h4>Hızlı Bağlantılar</h4>
-        <ul>
-          <li><a href="#/">Ana Sayfa</a></li>
-          <li><a href="#/menu">Dijital Menü</a></li>
-          <li><a href="#/cart">Sepetim</a></li>
-          <li><a href="#/orders">Siparişlerim</a></li>
-          <li><a href="#/admin">Yönetim Paneli</a></li>
-        </ul>
-      </div>
-      <div class="footer-info">
-        <h4>Fatih Akıllı Sofra</h4>
-        <p>Fatih Akıllı Sofra, Fatih Belediyesi tesislerinde hızlı, hijyenik ve modern bir servis deneyimi sunmak amacıyla geliştirilmiş akıllı otomasyon sistemidir.</p>
-      </div>
-    </div>
-    <div class="footer-bottom text-center">
-      <p>&copy; ${new Date().getFullYear()} Fatih Belediyesi Bilgi İşlem Müdürlüğü. Tüm Hakları Saklıdır.</p>
-    </div>
-  </footer>
+  <!-- Footer (hidden element kept for router.js compatibility) -->
+  <footer class="footer" style="display:none !important;"></footer>
+
+  <!-- Bottom Tab Bar (Mobile App Style) -->
+  <nav class="bottom-tab-bar" id="bottom-tab-bar">
+    <a href="#/" class="bottom-tab-item" data-tab="/">
+      <span class="material-icons-round">home</span>
+      <span class="bottom-tab-label">Anasayfa</span>
+    </a>
+    <a href="#/menu" class="bottom-tab-item" data-tab="/menu">
+      <span class="material-icons-round">restaurant_menu</span>
+      <span class="bottom-tab-label">Menü</span>
+    </a>
+    <a href="#/cart" class="bottom-tab-item" data-tab="/cart">
+      <span class="material-icons-round">shopping_bag</span>
+      <span class="bottom-tab-label">Sepetim</span>
+      <span class="bottom-tab-badge" id="bottom-tab-cart-badge">0</span>
+    </a>
+    <a href="#/orders" class="bottom-tab-item" data-tab="/orders">
+      <span class="material-icons-round">receipt_long</span>
+      <span class="bottom-tab-label">Siparişlerim</span>
+    </a>
+    <a href="#/admin" class="bottom-tab-item" data-tab="/admin">
+      <span class="material-icons-round">admin_panel_settings</span>
+      <span class="bottom-tab-label">Yönetim</span>
+    </a>
+  </nav>
 
   <!-- Garson Çağır Floating Action Button -->
   <button id="garson-fab" aria-label="Garson Çağır">
@@ -135,29 +110,77 @@ router.addRoute('/admin/history', () => import('./pages/admin-history.js'));
 router.addRoute('/admin/finance', () => import('./pages/admin-finance.js'));
 router.addRoute('/admin/rewards', () => import('./pages/admin-rewards.js'));
 
-// ── Mobile Menu Toggle Handler ──────────────────────────────
-const toggleBtn = document.getElementById('navbar-toggle-btn');
-const navLinksEl = document.getElementById('navbar-links');
-if (toggleBtn && navLinksEl) {
-  toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    navLinksEl.classList.toggle('open');
-    toggleBtn.classList.toggle('active');
+// ── Top Header & Bottom Tab Bar — Route-aware UI Updates ─────
+function updateShellForRoute() {
+  const hash = window.location.hash || '#/';
+  const path = hash.slice(1).split('?')[0] || '/';
+  const isAdmin = path.startsWith('/admin');
+
+  const topHeader = document.getElementById('app-top-header');
+  const bottomTabBar = document.getElementById('bottom-tab-bar');
+  const garsonFab = document.getElementById('garson-fab');
+  const backBtn = document.getElementById('top-header-back');
+  const headerLogo = document.getElementById('top-header-logo');
+  const headerTitle = document.getElementById('top-header-title');
+
+  // ── Admin routes: hide customer chrome ──
+  if (isAdmin) {
+    if (topHeader) topHeader.style.display = 'none';
+    if (bottomTabBar) bottomTabBar.style.display = 'none';
+    if (garsonFab) garsonFab.style.display = 'none';
+    return;
+  }
+
+  // ── Customer routes: show customer chrome ──
+  if (topHeader) topHeader.style.display = '';
+  if (bottomTabBar) bottomTabBar.style.display = '';
+
+  // Back button: hidden on landing page
+  if (backBtn) {
+    backBtn.style.visibility = (path === '/') ? 'hidden' : 'visible';
+  }
+
+  // Header center: logo on landing, title on other pages
+  const titleText = ROUTE_TITLES[path];
+  if (path === '/') {
+    if (headerLogo) headerLogo.style.display = '';
+    if (headerTitle) headerTitle.style.display = 'none';
+  } else {
+    if (headerLogo) headerLogo.style.display = 'none';
+    if (headerTitle) {
+      headerTitle.style.display = '';
+      headerTitle.textContent = titleText || 'Fatih Akıllı Sofra';
+    }
+  }
+
+  // Active tab highlighting
+  const tabs = document.querySelectorAll('.bottom-tab-item');
+  tabs.forEach(tab => {
+    const tabPath = tab.getAttribute('data-tab');
+    if (tabPath === path) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
   });
 
-  // Close menu when clicking outside or clicking any nav link
-  document.addEventListener('click', () => {
-    navLinksEl.classList.remove('open');
-    toggleBtn.classList.remove('active');
-  });
-  
-  navLinksEl.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinksEl.classList.remove('open');
-      toggleBtn.classList.remove('active');
-    });
-  });
+  // FAB visibility (handled further in store subscription, but set baseline)
+  if (garsonFab) {
+    const state = store.state;
+    if (state.currentFacility) {
+      garsonFab.style.display = 'none';
+    } else {
+      garsonFab.style.display = 'flex';
+    }
+  }
 }
+
+// Listen for hash changes to keep shell UI in sync
+window.addEventListener('hashchange', updateShellForRoute);
+window.addEventListener('load', () => {
+  // Delay slightly to ensure router has done initial render
+  setTimeout(updateShellForRoute, 50);
+});
 
 // ── App Store Subscriptions ──────────────────────────────────
 import { playNotificationSound } from './utils.js';
@@ -181,62 +204,21 @@ store.subscribe((state, event, payload) => {
 
   const totalQty = (state.cart || []).reduce((sum, item) => sum + item.quantity, 0);
 
-  // 1. Update Navigation Cart Badges (Drawer & Header)
-  const cartBadgeDrawer = document.getElementById('nav-cart-badge');
-  const cartBadgeHeader = document.getElementById('header-cart-badge');
-
-  [cartBadgeDrawer, cartBadgeHeader].forEach(badge => {
-    if (badge) {
-      badge.textContent = totalQty;
-      if (totalQty > 0) {
-        badge.style.display = 'flex';
-        badge.classList.add('pulse');
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-  });
-
-  // 2. Update Table Indicators (Drawer & Header)
-  const tableIndicatorDrawer = document.getElementById('nav-table-indicator');
-  const tableTextDrawer = document.getElementById('nav-table-text');
-  const tableIndicatorHeader = document.getElementById('header-table-indicator');
-  const tableTextHeader = document.getElementById('header-table-text');
-
-  const btnGarsonHeader = document.getElementById('header-garson-cagir');
-  const btnGarsonDrawer = document.getElementById('nav-garson-cagir');
-
-  if (state.currentTable) {
-    if (tableTextDrawer) tableTextDrawer.textContent = `Masa ${state.currentTable}`;
-    if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'flex';
-    if (tableTextHeader) tableTextHeader.textContent = `Masa ${state.currentTable}`;
-    if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'flex';
-    if (btnGarsonHeader) btnGarsonHeader.style.display = 'inline-flex';
-    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'flex';
-  } else if (state.currentFacility) {
-    const facilitiesMap = {
-      'catladikapi': 'Çatladıkapı',
-      'topkapi': 'Topkapı',
-      'ayvansaray': 'Ayvansaray',
-      'yedikule': 'Yedikule',
-      'sultanahmet': 'Sultanahmet',
-      'karagumruk': 'Karagümrük'
-    };
-    const facName = facilitiesMap[state.currentFacility] || 'Tesis';
-    if (tableTextDrawer) tableTextDrawer.textContent = `Gel-Al: ${facName}`;
-    if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'flex';
-    if (tableTextHeader) tableTextHeader.textContent = `Gel-Al: ${facName}`;
-    if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'flex';
-    if (btnGarsonHeader) btnGarsonHeader.style.display = 'none';
-    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'none';
-  } else {
-    if (tableIndicatorDrawer) tableIndicatorDrawer.style.display = 'none';
-    if (tableIndicatorHeader) tableIndicatorHeader.style.display = 'none';
-    if (btnGarsonHeader) btnGarsonHeader.style.display = 'none';
-    if (btnGarsonDrawer) btnGarsonDrawer.style.display = 'none';
+  // 1. Update Top Header Cart Badge
+  const headerCartBadge = document.getElementById('top-header-cart-badge');
+  if (headerCartBadge) {
+    headerCartBadge.textContent = totalQty;
+    headerCartBadge.style.display = totalQty > 0 ? 'flex' : 'none';
   }
-  
-  // ── FAB visibility: hide on admin routes and Gel-Al mode ──
+
+  // 2. Update Bottom Tab Bar Cart Badge
+  const bottomTabBadge = document.getElementById('bottom-tab-cart-badge');
+  if (bottomTabBadge) {
+    bottomTabBadge.textContent = totalQty;
+    bottomTabBadge.style.display = totalQty > 0 ? 'flex' : 'none';
+  }
+
+  // 3. FAB visibility: hide on admin routes and Gel-Al mode
   const garsonFab = document.getElementById('garson-fab');
   if (garsonFab) {
     const currentHash = window.location.hash || '';
@@ -256,12 +238,6 @@ const GARSON_COOLDOWN_SECONDS = 60;
 
 const handleGarsonCagir = async (e) => {
   e.stopPropagation();
-  
-  // Close mobile drawer if open
-  const navLinksEl = document.getElementById('navbar-links');
-  const toggleBtn = document.getElementById('navbar-toggle-btn');
-  if (navLinksEl) navLinksEl.classList.remove('open');
-  if (toggleBtn) toggleBtn.classList.remove('active');
 
   // Block if cooldown active
   if (garsonCooldownActive) {
@@ -350,12 +326,6 @@ function startGarsonCooldown() {
 // Bind FAB click
 const garsonFabBtn = document.getElementById('garson-fab');
 if (garsonFabBtn) garsonFabBtn.addEventListener('click', handleGarsonCagir);
-
-// Also keep navbar buttons working
-const garsonBtnDrawer = document.getElementById('nav-garson-cagir');
-const garsonBtnHeader = document.getElementById('header-garson-cagir');
-if (garsonBtnDrawer) garsonBtnDrawer.addEventListener('click', handleGarsonCagir);
-if (garsonBtnHeader) garsonBtnHeader.addEventListener('click', handleGarsonCagir);
 
 // ── Preloader Animation Dismissal ───────────────────────────
 window.addEventListener('load', () => {
