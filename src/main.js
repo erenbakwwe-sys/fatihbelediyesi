@@ -109,6 +109,7 @@ router.addRoute('/admin/calls', () => import('./pages/admin-calls.js'));
 router.addRoute('/admin/history', () => import('./pages/admin-history.js'));
 router.addRoute('/admin/finance', () => import('./pages/admin-finance.js'));
 router.addRoute('/admin/rewards', () => import('./pages/admin-rewards.js'));
+router.addRoute('/admin/stock', () => import('./pages/admin-stock.js'));
 
 // ── Top Header & Bottom Tab Bar — Route-aware UI Updates ─────
 function updateShellForRoute() {

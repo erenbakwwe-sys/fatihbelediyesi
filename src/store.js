@@ -180,7 +180,18 @@ class Store {
         if (snapshot.empty) {
           await this.seedCollection('menu', INITIAL_MENU).catch(() => {});
         } else {
-          this.state.menu = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          this.state.menu = snapshot.docs.map(d => {
+            const data = d.data();
+            const fallback = INITIAL_MENU.find(m => m.id === d.id) || {};
+            return {
+              cost: fallback.cost || 0,
+              stock: fallback.stock || 0,
+              criticalStock: fallback.criticalStock || 10,
+              trackStock: fallback.trackStock !== false,
+              ...data,
+              id: d.id
+            };
+          });
           this.emit();
         }
       }, () => {
@@ -438,6 +449,16 @@ class Store {
     // 3) Clear cart
     this.clearCart();
     
+    // Decrement stock levels locally and sync in background
+    verifiedItems.forEach(item => {
+      const menuItem = this.state.menu.find(m => m.id === item.id);
+      if (menuItem && menuItem.trackStock) {
+        menuItem.stock = Math.max(0, (menuItem.stock || 0) - item.quantity);
+        // Sync to Firestore in background
+        updateDoc(doc(db, 'menu', item.id), { stock: menuItem.stock }).catch(() => {});
+      }
+    });
+
     if (!isSplit) {
       this.emit('NEW_ORDER', { id: orderId, ...orderData });
       showToast('Siparişiniz başarıyla mutfağa iletildi!');
@@ -729,6 +750,47 @@ class Store {
 
     // Firebase background
     updateDoc(doc(db, 'rewards', rewardId), { used: true }).catch(() => {});
+  }
+
+  // 7. Stock & Cost Operations
+  async updateStock(itemId, newStock) {
+    const menuItem = this.state.menu.find(m => m.id === itemId);
+    if (menuItem) {
+      menuItem.stock = parseInt(newStock, 10) || 0;
+      this.emit();
+      showToast('Stok miktarı güncellendi.', 'success');
+      
+      // Sync to Firestore in background
+      updateDoc(doc(db, 'menu', itemId), { stock: menuItem.stock }).catch(() => {});
+    }
+  }
+
+  async updateItemCost(itemId, newCost) {
+    const menuItem = this.state.menu.find(m => m.id === itemId);
+    if (menuItem) {
+      menuItem.cost = parseFloat(newCost) || 0;
+      this.emit();
+      showToast('Birim maliyet güncellendi.', 'success');
+      
+      // Sync to Firestore in background
+      updateDoc(doc(db, 'menu', itemId), { cost: menuItem.cost }).catch(() => {});
+    }
+  }
+
+  async updateItemStockSettings(itemId, trackStock, criticalStock) {
+    const menuItem = this.state.menu.find(m => m.id === itemId);
+    if (menuItem) {
+      menuItem.trackStock = !!trackStock;
+      menuItem.criticalStock = parseInt(criticalStock, 10) || 0;
+      this.emit();
+      showToast('Stok ayarları güncellendi.', 'success');
+      
+      // Sync to Firestore in background
+      updateDoc(doc(db, 'menu', itemId), { 
+        trackStock: menuItem.trackStock, 
+        criticalStock: menuItem.criticalStock 
+      }).catch(() => {});
+    }
   }
 }
 

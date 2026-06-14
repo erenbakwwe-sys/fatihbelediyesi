@@ -88,6 +88,10 @@ class Router {
                   <span class="material-icons-round nav-icon">table_restaurant</span>
                   <span class="nav-label">Masa & QR</span>
                 </a>
+                <a href="#/admin/stock" class="sidebar-nav-item" data-admin-nav="/admin/stock">
+                  <span class="material-icons-round nav-icon">inventory_2</span>
+                  <span class="nav-label">Stok & Maliyet</span>
+                </a>
                 <a href="#/admin/calls" class="sidebar-nav-item" data-admin-nav="/admin/calls">
                   <span class="material-icons-round nav-icon">notifications_active</span>
                   <span class="nav-label">Çağrılar</span>
