@@ -168,9 +168,9 @@ function updateShellForRoute() {
   if (garsonFab) {
     const state = store.state;
     if (path === '/cart') {
-      garsonFab.style.bottom = '145px';
+      garsonFab.style.setProperty('bottom', '145px', 'important');
     } else {
-      garsonFab.style.bottom = '';
+      garsonFab.style.removeProperty('bottom');
     }
     if (state.currentFacility) {
       garsonFab.style.display = 'none';
@@ -229,9 +229,9 @@ store.subscribe((state, event, payload) => {
     const currentHash = window.location.hash || '';
     const path = currentHash.slice(1).split('?')[0] || '/';
     if (path === '/cart') {
-      garsonFab.style.bottom = '145px';
+      garsonFab.style.setProperty('bottom', '145px', 'important');
     } else {
-      garsonFab.style.bottom = '';
+      garsonFab.style.removeProperty('bottom');
     }
     if (currentHash.startsWith('#/admin')) {
       garsonFab.style.display = 'none';
