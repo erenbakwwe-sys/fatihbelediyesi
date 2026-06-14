@@ -39,6 +39,12 @@ class Router {
   async handleRouteChange() {
     if (!this.container) return;
 
+    // Cleanup any lingering global overlays/popups from previous routes
+    const upsellPopup = document.querySelector('.bottom-popup-overlay');
+    if (upsellPopup) upsellPopup.remove();
+    const modalOverlays = document.querySelectorAll('.modal-overlay');
+    modalOverlays.forEach(overlay => overlay.remove());
+
     const path = this.getCurrentRoute();
     this.currentPath = path;
     const isAdminRoute = path.startsWith('/admin');

@@ -75,10 +75,10 @@ export function render() {
         padding: 12px 32px; border-radius: 25px; border: none;
         font-size: 15px; font-weight: 700; cursor: pointer;
         transition: all 0.2s; font-family: inherit;
-        ${cart.length > 0 
+        ${(cart.length > 0 && (store.state.currentTable || store.state.currentFacility))
           ? 'background: #C8102E; color: #fff; box-shadow: 0 4px 12px rgba(200,16,46,0.3);' 
-          : 'background: #e0e0e0; color: #999; cursor: default;'}
-      ">${cart.length > 0 ? 'Devam Et' : 'Devam Et'}</button>
+          : 'background: #e0e0e0; color: #999; cursor: not-allowed;'}
+      ">${(store.state.currentTable || store.state.currentFacility) ? 'Devam Et' : 'QR Okutulmadı'}</button>
     </div>
 
     <style>

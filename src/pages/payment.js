@@ -8,6 +8,15 @@ let savedCart = [];
 let savedTotal = 0;
 
 export function render() {
+  // Enforce QR code scan / table selection before payment
+  if (!store.state.currentTable && !store.state.currentFacility) {
+    setTimeout(() => {
+      showToast('Sipariş ve ödeme yapmak için lütfen masanızdaki QR kodu okutun!', 'error');
+      window.location.hash = '#/menu';
+    }, 50);
+    return `<div style="padding: 40px; text-align: center; color: #999; font-weight: 600;">Giriş doğrulanıyor, yönlendiriliyorsunuz...</div>`;
+  }
+
   // Save cart data before it gets cleared by placeOrder
   const currentCart = store.cart || [];
   const currentTotal = store.getCartTotal ? store.getCartTotal() : 0;
