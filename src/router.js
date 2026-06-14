@@ -205,13 +205,19 @@ class Router {
 
     } catch (e) {
       console.error(`Failed to load route: ${path}`, e);
-      const mountTarget = isAdminRoute ? document.getElementById('admin-page-holder') : this.container;
+      let mountTarget = isAdminRoute ? document.getElementById('admin-page-holder') : this.container;
+      if (!mountTarget) {
+        mountTarget = this.container;
+      }
       if (mountTarget) {
         mountTarget.innerHTML = `
-          <div class="container text-center reveal" style="padding: 100px 20px;">
-            <span class="material-icons text-primary" style="font-size: 64px;">error_outline</span>
-            <h2 style="margin-top:20px; font-weight:700; color:var(--text-dark);">Sayfa Yüklenemedi</h2>
-            <p style="color:var(--text-muted); margin: 15px 0;">İstediğiniz sayfaya şu anda erişemiyoruz.</p>
+          <div class="container text-center reveal" style="padding: 100px 20px; max-width: 500px; margin: 0 auto; text-align: center;">
+            <span class="material-icons text-primary" style="font-size: 64px; color: #C8102E;">error_outline</span>
+            <h2 style="margin-top:20px; font-weight:700; color: #1A1A2E;">Sayfa Yüklenemedi</h2>
+            <p style="color: #666; margin: 15px 0;">İstediğiniz sayfaya şu anda erişemiyoruz.</p>
+            <div style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #ef4444; margin-bottom: 20px; word-break: break-all; text-align: left;">
+              Hata: ${e.stack || e.message}
+            </div>
             <a href="#/" class="btn btn-primary" style="margin-top:15px;">Ana Sayfaya Dön</a>
           </div>
         `;
