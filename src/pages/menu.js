@@ -108,7 +108,7 @@ export function render() {
         gap: 12px;
         padding: 8px 16px;
       ">
-        ${menu.map(item => renderMenuCard(item)).join('')}
+        ${menu.map((item, index) => renderMenuCard(item, index)).join('')}
       </div>
 
       <!-- Empty state -->
@@ -234,6 +234,7 @@ export function render() {
       }
       .menu-add-btn-v2.added {
         background: #16a34a !important;
+        transform: scale(1.15) rotate(360deg) !important;
       }
 
       #menu-search:focus {
@@ -250,15 +251,16 @@ export function render() {
   `;
 }
 
-function renderMenuCard(item) {
+function renderMenuCard(item, index = 0) {
   const imgPath = item.image 
     ? (item.image.startsWith('/') || item.image.startsWith('http') ? item.image : `/images/${item.image}`) 
     : '/images/hero-bg.png';
   
   const priceText = `${item.price} TL`;
+  const delay = `${index * 0.04}s`;
   
   return `
-    <div class="menu-card-v2" data-category="${item.category || ''}" data-name="${(item.name || '').toLowerCase()}">
+    <div class="menu-card-v2 slide-up-in" data-category="${item.category || ''}" data-name="${(item.name || '').toLowerCase()}" style="animation-delay: ${delay}; opacity: 0;">
       <div class="menu-card-v2__img-area">
         <img src="${imgPath}" alt="${item.name}" loading="lazy" />
         ${item.featured ? '<div class="menu-card-v2__badge">YENİ</div>' : ''}
@@ -483,7 +485,7 @@ export function init() {
 
       const newGridContent = (store.menu || [])
         .filter(item => item.active !== false)
-        .map(item => renderMenuCard(item)).join('');
+        .map((item, index) => renderMenuCard(item, index)).join('');
         
       if (grid && grid.innerHTML !== newGridContent) {
         grid.innerHTML = newGridContent;

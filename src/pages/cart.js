@@ -14,14 +14,15 @@ function getSuggestionItems() {
   return shuffled.slice(0, 4);
 }
 
-function renderSuggestionCard(item) {
+function renderSuggestionCard(item, index = 0) {
   const imgPath = item.image 
     ? (item.image.startsWith('/') || item.image.startsWith('http') ? item.image : `/images/${item.image}`) 
     : '/images/hero-bg.png';
+  const delay = `${(index + 3) * 0.04}s`;
   return `
-    <div class="suggest-card" data-id="${item.id}" style="
+    <div class="suggest-card slide-up-in" data-id="${item.id}" style="
       background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      overflow: hidden;
+      overflow: hidden; animation-delay: ${delay}; opacity: 0;
     ">
       <div style="
         height: 120px; background: #f5f6f8;
@@ -173,7 +174,7 @@ function renderEmptyCart(suggestions, total) {
         <div id="suggestion-grid" style="
           display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
         ">
-          ${suggestions.map(item => renderSuggestionCard(item)).join('')}
+          ${suggestions.map((item, idx) => renderSuggestionCard(item, idx)).join('')}
         </div>
       </div>
     ` : ''}
@@ -229,7 +230,7 @@ function renderFullCart(cart, total, suggestions) {
         <div id="suggestion-grid" style="
           display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
         ">
-          ${suggestions.map(item => renderSuggestionCard(item)).join('')}
+          ${suggestions.map((item, idx) => renderSuggestionCard(item, idx)).join('')}
         </div>
       </div>
     ` : ''}
@@ -242,9 +243,10 @@ function renderCartItem(entry, index) {
     ? (item.image.startsWith('/') || item.image.startsWith('http') ? item.image : `/images/${item.image}`) 
     : '/images/hero-bg.png';
   const lineTotal = item.price * item.quantity;
+  const delay = `${index * 0.04}s`;
 
   return `
-    <div class="cart-item-v2" data-id="${item.id}" data-index="${index}">
+    <div class="cart-item-v2 slide-up-in" data-id="${item.id}" data-index="${index}" style="animation-delay: ${delay}; opacity: 0;">
       <img src="${imgPath}" alt="${item.name}" style="
         width: 60px; height: 60px; border-radius: 12px;
         object-fit: cover; flex-shrink: 0; background: #f5f6f8;

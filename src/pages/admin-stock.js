@@ -471,7 +471,7 @@ export default {
 
     modalEl.style.display = 'flex';
     modalEl.innerHTML = `
-      <div class="modal scale-in" style="max-width: 460px; padding: 25px;">
+      <div class="modal apple-spring-in" style="max-width: 460px; padding: 25px;">
         <div class="modal-header flex justify-between align-center" style="margin-bottom: 20px;">
           <h3 style="font-weight: 700; color: var(--color-text);">Stok & Maliyet Düzenle</h3>
           <button class="btn btn-icon btn-ghost" id="modal-close-btn" style="color:var(--text-muted);">

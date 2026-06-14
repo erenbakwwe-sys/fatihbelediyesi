@@ -3652,3 +3652,119 @@ body.facility-mode #garson-fab {
     padding-bottom: 0 !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE/IOS TACTILE REDESIGN & PREMIUM STYLES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Yarı Saydam Cam Efektleri (Header ve Tab Bar) */
+.app-top-header {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+.bottom-tab-bar {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+/* iOS Fizik Tabanlı Basılma Hissi (Springy Tactile Feedback) */
+.btn,
+.menu-add-btn-v2,
+.suggest-add-btn,
+.top-header-cart,
+.bottom-tab-item,
+.cart-qty-btn-v2,
+.menu-cat-btn,
+.top-header-back,
+#garson-fab {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+.btn:active,
+.menu-add-btn-v2:active,
+.suggest-add-btn:active,
+.top-header-cart:active,
+.bottom-tab-item:active,
+.cart-qty-btn-v2:active,
+.menu-cat-btn:active,
+.top-header-back:active,
+#garson-fab:active {
+  transform: scale(0.92) !important;
+}
+
+/* Yaylı Kart Geçişleri */
+.menu-card-v2, .suggest-card {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+}
+.menu-card-v2:hover, .suggest-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+}
+.menu-card-v2:active, .suggest-card:active {
+  transform: scale(0.96) !important;
+}
+
+/* iOS Blurlu Arka Plan Modalı */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: opacity 0.3s ease;
+}
+
+/* Apple Yaylı Açılma Efekti (Spring Scale-in) */
+@keyframes appleSpringIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.apple-spring-in {
+  animation: appleSpringIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* iOS Bottom-Sheet (Alt Çarşaf) Tasarımı (Mobil Görünüm) */
+@keyframes slideUpSheet {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    display: flex;
+    align-items: flex-end !important;
+    justify-content: center;
+  }
+  
+  .modal-overlay .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    margin: 0 !important;
+    animation: slideUpSheet 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.12) !important;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    border: none !important;
+  }
+  
+  /* Sürükleme Çubuğu Taklidi */
+  .modal-overlay .modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 5px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin: -10px auto 18px;
+  }
+}
+
+/* Sıralı Belirme (Staggered Load-In) Animasyonu */
+@keyframes slideUpIn {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.slide-up-in {
+  animation: slideUpIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
