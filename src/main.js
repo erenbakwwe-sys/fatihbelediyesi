@@ -164,11 +164,15 @@ function updateShellForRoute() {
     }
   });
 
-  // FAB visibility (handled further in store subscription, but set baseline)
+  // FAB visibility & position (handled further in store subscription, but set baseline)
   if (garsonFab) {
     const state = store.state;
-    const hideOnRoutes = ['/cart', '/payment', '/scratch'];
-    if (state.currentFacility || hideOnRoutes.includes(path)) {
+    if (path === '/cart') {
+      garsonFab.style.bottom = '145px';
+    } else {
+      garsonFab.style.bottom = '';
+    }
+    if (state.currentFacility) {
       garsonFab.style.display = 'none';
     } else {
       garsonFab.style.display = 'flex';
@@ -219,15 +223,19 @@ store.subscribe((state, event, payload) => {
     bottomTabBadge.style.display = totalQty > 0 ? 'flex' : 'none';
   }
 
-  // 3. FAB visibility: hide on admin routes, Gel-Al mode, and checkout pages
+  // 3. FAB visibility & position: hide on admin routes and Gel-Al mode
   const garsonFab = document.getElementById('garson-fab');
   if (garsonFab) {
     const currentHash = window.location.hash || '';
     const path = currentHash.slice(1).split('?')[0] || '/';
-    const hideOnRoutes = ['/cart', '/payment', '/scratch'];
+    if (path === '/cart') {
+      garsonFab.style.bottom = '145px';
+    } else {
+      garsonFab.style.bottom = '';
+    }
     if (currentHash.startsWith('#/admin')) {
       garsonFab.style.display = 'none';
-    } else if (state.currentFacility || hideOnRoutes.includes(path)) {
+    } else if (state.currentFacility) {
       garsonFab.style.display = 'none';
     } else {
       garsonFab.style.display = 'flex';
